@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Quiet Map: Ground Truth — the earth's own account of where nothing is happening</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#05070D; --ink2:#0A0F1A;
+  --moon:#F2EBD6; --moon-soft:rgba(242,235,214,.62);
+  --slate:#8B9BB0; --slate-dim:#5A6A80;
+  --dusk:#3E4C66; --ember:#C4542A;
+  --hair:rgba(139,155,176,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--ink);color:var(--moon);font-family:'IBM Plex Mono',ui-monospace,monospace;overflow:hidden;display:flex;flex-direction:column}
+.brand{position:absolute;top:16px;left:20px;z-index:6}
+.wordmark{font-size:10px;letter-spacing:.4em;color:var(--slate);text-transform:uppercase}
+.wordmark b{color:var(--moon-soft);font-weight:500}
+.tagline{font-size:9px;letter-spacing:.12em;color:var(--slate-dim);margin-top:4px;text-transform:uppercase}
+header{text-align:center;padding:clamp(20px,3.4vh,38px) 20px clamp(8px,1.5vh,16px);flex:0 0 auto;position:relative;z-index:5}
+@media (max-width:960px){.brand{position:static;text-align:center;padding:12px 0 0}header{padding-top:10px}}
+.eyebrow{font-size:10px;letter-spacing:.42em;text-indent:.42em;color:var(--moon-soft);text-transform:uppercase;
+  display:flex;align-items:center;justify-content:center;gap:18px}
+.eyebrow::before,.eyebrow::after{content:"";height:1px;width:clamp(24px,6vw,72px);background:linear-gradient(90deg,transparent,rgba(139,155,176,.4))}
+.eyebrow::after{background:linear-gradient(90deg,rgba(139,155,176,.4),transparent)}
+h1.place{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;
+  font-size:clamp(30px,5.4vw,62px);line-height:1.0;color:var(--moon);margin-top:5px;
+  text-shadow:0 0 46px rgba(242,235,214,.18);transition:opacity .5s ease;min-height:1.05em}
+h1.place.dim{opacity:.15}
+.meta{margin-top:7px;font-size:11px;letter-spacing:.12em;color:var(--slate)}
+.meta b{color:var(--moon);font-weight:500}
+.counter{margin-top:4px;font-size:10px;letter-spacing:.1em;color:var(--slate-dim)}
+.counter b{color:#C97847;font-weight:400}
+#stage{flex:1 1 auto;position:relative;min-height:0}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#glow{pointer-events:none}
+#map{cursor:crosshair}
+.scale{
+  position:absolute;left:clamp(16px,3vw,40px);bottom:14px;z-index:7;
+  display:flex;align-items:center;gap:12px;
+  font-size:10px;letter-spacing:.3em;text-indent:.3em;text-transform:uppercase;
+  padding:10px 16px;border:1px solid var(--hair);
+  background:rgba(5,7,13,.72);backdrop-filter:blur(4px);
+}
+.s-cap{display:flex;align-items:center;gap:9px;white-space:nowrap}
+.s-cap.noise{color:#C97847}.s-cap.silence{color:var(--moon)}
+.s-bar{width:clamp(120px,16vw,240px);height:6px;border-radius:3px;
+  background:linear-gradient(90deg,#F2EBD6 0%,#8C93A0 26%,#3E4C66 52%,#6B3A2A 78%,#C4542A 100%);
+  box-shadow:0 0 12px rgba(242,235,214,.12)}
+.dotp{display:inline-block;width:9px;height:9px;border-radius:50%}
+.dotp.q{background:var(--moon);box-shadow:0 0 10px 2px rgba(242,235,214,.85);animation:qpulse 3.2s ease-in-out infinite}
+.dotp.l{background:var(--ember);animation:flick 1.7s steps(2) infinite}
+@keyframes qpulse{0%,100%{box-shadow:0 0 8px 1px rgba(242,235,214,.6)}50%{box-shadow:0 0 15px 4px rgba(242,235,214,.95)}}
+@keyframes flick{0%,100%{opacity:.55}50%{opacity:1}}
+/* waiting state */
+#waiting{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;z-index:6;text-align:center;padding:20px;pointer-events:none;
+}
+#waiting .w-line{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--slate)}
+#waiting .w-sub{font-size:10px;letter-spacing:.1em;color:var(--slate-dim);max-width:460px;line-height:1.9}
+#waiting .btn{pointer-events:auto;margin-top:6px}
+#probe{position:absolute;pointer-events:none;z-index:8;background:rgba(5,7,13,.9);border:1px solid var(--hair);
+  padding:10px 14px;max-width:270px;backdrop-filter:blur(4px);opacity:0;transition:opacity .25s}
+#probe.on{opacity:1}
+#probe .p-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;color:var(--moon)}
+#probe .p-line{font-size:9.5px;letter-spacing:.1em;color:var(--slate);margin-top:4px;text-transform:uppercase}
+#probe .p-score{font-size:9.5px;letter-spacing:.1em;margin-top:3px;color:var(--moon-soft)}
+footer{flex:0 0 auto;position:relative;z-index:5;padding:4px clamp(16px,4vw,48px) clamp(12px,2vh,18px)}
+.status{text-align:center;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--slate-dim);margin-bottom:9px;min-height:12px}
+.status b{color:#C97847;font-weight:400}
+.status .sim{color:#C97847}
+.horizon{display:flex;align-items:center;gap:14px}
+.spark-wrap{position:relative;flex:1;height:34px}
+.spark-label{position:absolute;left:0;top:-4px;font-size:8px;letter-spacing:.24em;color:var(--slate-dim);text-transform:uppercase}
+canvas#spark{position:absolute;inset:0;width:100%;height:100%}
+.btn{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.26em;text-transform:uppercase;text-indent:.26em;
+  color:var(--slate);background:none;border:1px solid var(--hair);padding:8px 14px;cursor:pointer;white-space:nowrap;
+  transition:color .25s,border-color .25s}
+.btn:hover,.btn:focus-visible{color:var(--moon);border-color:rgba(242,235,214,.4);outline:none}
+#how{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;
+  background:rgba(4,6,11,.86);backdrop-filter:blur(8px)}
+#how.open{display:flex}
+.how-card{width:min(600px,92vw);max-height:86vh;overflow:auto;border:1px solid var(--hair);background:#070B14;
+  padding:clamp(26px,5vw,46px);position:relative}
+.how-card h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(28px,4vw,40px);color:var(--moon);margin-bottom:6px}
+.how-sub{font-size:9.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--slate-dim);margin-bottom:24px}
+.how-step{display:flex;gap:16px;margin-bottom:20px;align-items:baseline}
+.how-n{font-size:10px;color:var(--slate-dim);letter-spacing:.2em;flex:0 0 22px}
+.how-step h3{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--moon);font-weight:500;margin-bottom:5px}
+.how-step p{font-size:11.5px;line-height:1.75;color:var(--slate)}
+.how-step b{color:var(--moon-soft);font-weight:400}
+.how-note{margin-top:22px;padding-top:18px;border-top:1px solid var(--hair);font-size:10px;line-height:1.8;color:var(--slate-dim)}
+.how-close{position:absolute;top:14px;right:14px;border:none;background:none;color:var(--slate);font-size:16px;cursor:pointer;padding:6px 10px}
+.how-close:hover{color:var(--moon)}
+@media (max-width:640px){
+  .horizon{flex-wrap:wrap}.btn{padding:7px 9px;letter-spacing:.16em}
+  .scale{left:50%;transform:translateX(-50%);bottom:8px;gap:8px;padding:8px 12px}.s-bar{width:90px}
+  #probe{left:50% !important;bottom:64px;top:auto !important;transform:translateX(-50%)}
+}
+@media (prefers-reduced-motion:reduce){h1.place{transition:none}.dotp.q,.dotp.l{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="brand">
+  <div class="wordmark">The Quiet Map · <b>Ground Truth</b></div>
+  <div class="tagline">the earth's own account of where nothing is happening</div>
+</div>
+
+<header>
+  <div class="eyebrow" id="eyebrow">the stillest ground on earth right now is</div>
+  <h1 class="place" id="placeName">&nbsp;</h1>
+  <div class="meta" id="placeMeta"></div>
+  <div class="counter" id="loudLine"></div>
+</header>
+
+<div id="stage">
+  <canvas id="glow"></canvas>
+  <canvas id="map"></canvas>
+  <div id="waiting">
+    <div class="w-line" id="waitLine">reading the ground</div>
+    <div class="w-sub" id="waitSub">Looking for the latest served measurements…</div>
+    <button class="btn" id="dialBtn" style="display:none">Dial the stations from this browser</button>
+    <button class="btn" id="demoBtn" style="display:none">Preview with simulated signal</button>
+  </div>
+  <div id="probe"></div>
+  <div class="scale" aria-label="Legend: glowing stations mean still ground, ember stations mean humming ground">
+    <span class="s-cap silence"><span class="dotp q"></span>still</span>
+    <div class="s-bar"></div>
+    <span class="s-cap noise">humming<span class="dotp l"></span></span>
+  </div>
+</div>
+
+<footer>
+  <div class="status" id="statusLine">listening…</div>
+  <div class="horizon">
+    <div class="spark-wrap">
+      <span class="spark-label" id="sparkLabel"></span>
+      <canvas id="spark"></canvas>
+    </div>
+    <button class="btn" id="refreshBtn">Ask the ground again</button>
+    <button class="btn" id="saveBtn">Keep this moment</button>
+    <button class="btn" id="howBtn">How it works</button>
+  </div>
+</footer>
+
+<div id="how" role="dialog" aria-modal="true" aria-label="How the stillness is measured">
+  <div class="how-card">
+    <button class="how-close" id="howClose" aria-label="Close">✕</button>
+    <h2>How the stillness is measured</h2>
+    <div class="how-sub">no model · no estimates · only seismometers</div>
+
+    <div class="how-step"><div class="how-n">01</div><div>
+      <h3>The instruments</h3>
+      <p>This edition of The Quiet Map is fed by <b>one source only: the ground itself</b>. Around 70 broadband seismometers of the Global Seismographic Network (IRIS/EarthScope) — from Kongsberg to Kiritimati, Ala-Archa to Ascension — each permanently recording the vibration of the earth beneath it.</p>
+    </div></div>
+
+    <div class="how-step"><div class="how-n">02</div><div>
+      <h3>The human band</h3>
+      <p>Cities hum. Traffic, trains, industry and footsteps register as continuous ground vibration, concentrated between <b>4 and 14 Hz</b> — the band seismologists call cultural noise. During the 2020 lockdowns this hum measurably fell across the planet. We read each station's hourly noise spectrum and take its energy in exactly that band.</p>
+    </div></div>
+
+    <div class="how-step"><div class="how-n">03</div><div>
+      <h3>Each place against itself</h3>
+      <p>Bedrock, sensor depth and geography make stations incomparable in absolute terms — so we never compare Tokyo's ground to a village's. The latest hour is ranked <b>against that same station's own recent history at the same hour of day</b>. Between instruments, the map interpolates from the nearest stations — and <b>fades honestly with distance</b>: land far from any seismometer stays dim, because we will not claim to hear further than we can. Oceans carry nothing.</p>
+    </div></div>
+
+    <div class="how-step"><div class="how-n">04</div><div>
+      <h3>The title</h3>
+      <p>The stillest ground on Earth is the station currently furthest <b>below its own norm</b> — the place where the planet's surface is having its calmest hour. The loudest is the station furthest above: somewhere, the ground is being made to tremble more than usual, by weather, machines, crowds — or an earthquake, which you'll see as a rust ring from the USGS live feed.</p>
+    </div></div>
+
+    <div class="how-note" id="howNote">
+      Everything shown is measurement, refreshed hourly. Where the network cannot be reached (some sandboxed previews block external requests), the map waits honestly — or offers a clearly-labelled simulation so the design can be experienced. Nothing simulated is ever presented as real.
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== world stage (run-length dot grid, 1.5°) — geography only, carries no data ===== */
+const ROWS=[[4,[[72,3]]],[5,[[72,3]]],[6,[[71,4]]],[7,[[71,4]]],[8,[[71,4]]],[9,[[71,4],[231,2]]],[10,[[71,4],[232,2]]],[11,[[72,4],[217,2],[234,1]]],[12,[[72,5],[216,3],[235,1]]],[13,[[72,6],[236,2]]],[14,[[72,7],[216,3],[237,2]]],[15,[[73,8],[213,7],[236,1]]],[16,[[73,9],[212,8],[235,1]]],[17,[[73,11],[132,6],[197,4],[209,12]]],[18,[[72,14],[132,7],[197,10],[208,13]]],[19,[[72,14],[131,9],[197,25]]],[20,[[72,15],[131,10],[197,25]]],[21,[[73,14],[131,11],[196,26]]],[22,[[73,15],[130,12],[196,26]]],[23,[[73,16],[130,13],[150,1],[196,25]]],[24,[[73,18],[129,14],[150,2],[196,25]]],[25,[[73,19],[129,15],[149,3],[196,24]]],[26,[[73,19],[129,15],[149,4],[199,20]]],[27,[[73,19],[128,17],[149,4],[200,17]]],[28,[[72,21],[128,18],[149,4],[201,16]]],[29,[[71,22],[128,19],[150,4],[203,8],[214,3]]],[30,[[70,24],[128,19],[151,2],[204,1],[206,5],[214,2]]],[31,[[69,25],[129,18],[152,1],[207,4],[214,1]]],[32,[[69,26],[129,18]]],[33,[[68,28],[128,19],[219,1]]],[34,[[68,29],[128,19],[195,1],[216,3]]],[35,[[67,30],[128,19],[191,3],[212,6]]],[36,[[66,31],[128,19],[189,1],[200,1],[211,6]]],[37,[[66,28],[127,20],[188,2],[200,2],[208,8]]],[38,[[66,25],[127,20],[187,2],[193,5],[200,1],[207,6]]],[39,[[67,21],[126,22],[186,2],[193,5],[199,2]]],[40,[[67,19],[126,23],[185,2],[193,6],[200,2]]],[41,[[68,18],[126,24],[185,1],[188,1],[194,5]]],[42,[[68,18],[126,25],[184,1],[187,2],[195,4]]],[43,[[68,17],[114,5],[123,29],[187,1],[197,2]]],[44,[[69,14],[113,40],[173,1],[186,2],[202,2]]],[45,[[65,2],[69,12],[112,41],[173,1],[186,1],[202,1]]],[46,[[63,2],[70,10],[111,43],[171,1],[186,1],[189,2]]],[47,[[63,1],[71,4],[110,40],[153,1],[170,3],[185,2],[188,5]]],[48,[[62,2],[109,39],[149,1],[170,3],[185,8]]],[49,[[59,5],[109,38],[148,5],[169,5],[185,7],[200,1]]],[50,[[57,6],[109,37],[148,7],[169,6],[185,7],[200,1]]],[51,[[53,8],[109,37],[147,9],[169,6],[183,9],[200,1]]],[52,[[51,6],[59,3],[71,3],[109,36],[147,11],[169,7],[182,9]]],[53,[[50,6],[59,3],[67,3],[109,36],[146,13],[168,10],[182,9]]],[54,[[49,6],[63,5],[110,34],[146,13],[166,29]]],[55,[[49,6],[110,34],[145,14],[165,32],[200,1]]],[56,[[48,7],[111,32],[145,10],[157,1],[165,33]]],[57,[[45,1],[47,8],[65,2],[112,31],[144,9],[159,40]]],[58,[[44,1],[46,10],[65,1],[113,29],[143,10],[155,45]]],[59,[[43,14],[60,1],[64,2],[113,39],[153,48]]],[60,[[43,23],[113,88]]],[61,[[43,24],[114,16],[132,2],[143,58],[206,2]]],[62,[[41,27],[114,13],[144,56],[208,2]]],[63,[[39,31],[116,11],[144,56],[204,2],[208,5]]],[64,[[39,31],[115,3],[122,5],[139,15],[155,46],[204,2],[210,4]]],[65,[[38,32],[114,5],[130,1],[134,1],[138,15],[156,44],[204,2],[212,2]]],[66,[[37,34],[114,6],[130,1],[133,3],[137,15],[156,45],[202,4],[213,1]]],[67,[[37,34],[114,8],[129,2],[133,6],[140,4],[147,5],[155,52]]],[68,[[37,25],[65,8],[114,9],[127,2],[132,7],[147,5],[155,53],[214,2]]],[69,[[37,25],[66,9],[118,11],[130,9],[146,6],[156,53],[214,3]]],[70,[[37,40],[118,22],[141,11],[156,55]]],[71,[[37,23],[63,14],[117,96]]],[72,[[37,39],[81,3],[118,95]]],[73,[[36,42],[81,2],[116,1],[121,92]]],[74,[[35,46],[114,1],[116,5],[122,90],[224,1]]],[75,[[34,31],[67,14],[113,3],[117,3],[124,88],[223,4]]],[76,[[33,31],[67,13],[114,2],[117,2],[125,2],[133,79],[224,4]]],[77,[[13,1],[32,29],[68,11],[116,3],[126,1],[128,2],[134,79],[224,5]]],[78,[[14,3],[31,27],[68,11],[116,2],[128,3],[136,78],[223,8]]],[79,[[13,6],[28,30],[75,3],[124,8],[136,96]]],[80,[[10,12],[23,35],[89,5],[123,8],[134,101]]],[81,[[9,49],[87,9],[124,8],[134,104]]],[82,[[0,3],[9,48],[86,11],[106,3],[126,8],[135,105]]],[83,[[0,5],[8,49],[85,14],[104,7],[128,18],[147,93]]],[84,[[0,5],[10,46],[84,16],[129,18],[149,91]]],[85,[[0,3],[12,34],[52,3],[84,18],[129,16],[153,87]]],[86,[[0,1],[14,11],[84,19],[133,9],[161,79]]],[87,[[83,21],[164,54]]],[88,[[82,23],[157,1],[172,34]]],[89,[[81,25],[159,1],[178,17]]],[90,[[80,26],[183,10]]],[91,[[74,32],[189,1]]],[92,[[73,33],[128,6]]],[93,[[77,28]]],[94,[[81,22]]],[95,[[96,3]]]];
+const STEP=1.5, LON0=-180+STEP/2, LAT0=-60+STEP/2;
+
+/* ===== the network: GSN broadband stations [target, place, country, lat, lon, tier] ===== */
+const STATIONS=[
+["IU.KONO.00.BHZ","Kongsberg","Norway",59.65,9.60,1],["II.BFO.00.BHZ","Black Forest","Germany",48.33,8.33,1],
+["II.ESK.00.BHZ","Eskdalemuir","Scotland",55.32,-3.20,1],["II.BORG.00.BHZ","Borgarnes","Iceland",64.75,-21.33,1],
+["IU.PAB.00.BHZ","San Pablo","Spain",39.55,-4.35,1],["IU.ANTO.00.BHZ","Ankara","Türkiye",39.87,32.79,1],
+["IU.GNI.00.BHZ","Garni","Armenia",40.15,44.74,2],["II.OBN.00.BHZ","Obninsk","Russia",55.11,36.57,2],
+["II.KIV.00.BHZ","Kislovodsk","Russia",43.96,42.69,2],["II.AAK.00.BHZ","Ala-Archa","Kyrgyzstan",42.64,74.49,1],
+["II.ABKT.00.BHZ","Alibek","Turkmenistan",37.93,58.12,2],["II.NIL.00.BHZ","Nilore","Pakistan",33.65,73.27,2],
+["II.PALK.00.BHZ","Pallekele","Sri Lanka",7.27,80.70,1],["IU.CHTO.00.BHZ","Chiang Mai","Thailand",18.81,98.94,1],
+["IU.ULN.00.BHZ","Ulaanbaatar","Mongolia",47.87,107.05,1],["IU.INCN.00.BHZ","Incheon","South Korea",37.48,126.62,1],
+["IU.MAJO.00.BHZ","Matsushiro","Japan",36.55,138.20,1],["II.ERM.00.BHZ","Erimo","Japan",42.02,143.16,2],
+["IU.TATO.00.BHZ","Taipei","Taiwan",24.97,121.49,1],["IU.DAV.00.BHZ","Davao","Philippines",7.07,125.58,2],
+["II.KAPI.00.BHZ","Kappang","Indonesia",-5.01,119.75,2],["IU.GUMO.00.BHZ","Guam","Mariana Is.",13.59,144.87,2],
+["IU.PMG.00.BHZ","Port Moresby","Papua New Guinea",-9.41,147.16,2],["IU.CTAO.00.BHZ","Charters Towers","Australia",-20.09,146.25,1],
+["II.WRAB.00.BHZ","Tennant Creek","Australia",-19.93,134.36,2],["IU.MBWA.00.BHZ","Marble Bar","Australia",-21.16,119.73,2],
+["IU.NWAO.00.BHZ","Narrogin","Australia",-32.93,117.24,1],["II.TAU.00.BHZ","Hobart","Australia",-42.91,147.32,1],
+["IU.SNZO.00.BHZ","Wellington","New Zealand",-41.31,174.70,1],["IU.RAR.00.BHZ","Rarotonga","Cook Islands",-21.21,-159.77,2],
+["IU.AFI.00.BHZ","Afiamalu","Samoa",-13.91,-171.78,2],["IU.FUNA.00.BHZ","Funafuti","Tuvalu",-8.53,179.20,2],
+["IU.TARA.00.BHZ","Tarawa","Kiribati",1.36,172.92,2],["IU.XMAS.00.BHZ","Kiritimati","Kiribati",2.04,-157.45,1],
+["IU.KIP.00.BHZ","Kipapa","Hawaiʻi",21.42,-158.01,1],["IU.POHA.00.BHZ","Pohakuloa","Hawaiʻi",19.76,-155.53,2],
+["IU.MIDW.00.BHZ","Midway Atoll","US Pacific",28.22,-177.37,2],["IU.WAKE.00.BHZ","Wake Island","US Pacific",19.28,166.65,2],
+["IU.ADK.00.BHZ","Adak","Alaska",51.88,-176.68,2],["IU.COLA.00.BHZ","College","Alaska",64.87,-147.86,1],
+["II.KDAK.00.BHZ","Kodiak","Alaska",57.78,-152.58,2],["IU.COR.00.BHZ","Corvallis","United States",44.59,-123.30,1],
+["II.PFO.00.BHZ","Piñon Flat","California",33.61,-116.46,1],["IU.TUC.00.BHZ","Tucson","United States",32.31,-110.78,1],
+["IU.ANMO.00.BHZ","Albuquerque","United States",34.95,-106.46,1],["IU.RSSD.00.BHZ","Black Hills","United States",44.12,-104.04,2],
+["IU.HKT.00.BHZ","Hockley","Texas",29.96,-95.84,1],["IU.WVT.00.BHZ","Waverly","Tennessee",36.13,-87.83,2],
+["IU.WCI.00.BHZ","Wyandotte Cave","Indiana",38.23,-86.29,2],["IU.SSPA.00.BHZ","Standing Stone","Pennsylvania",40.64,-77.89,2],
+["IU.HRV.00.BHZ","Harvard","United States",42.51,-71.56,1],["II.FFC.00.BHZ","Flin Flon","Canada",54.72,-101.98,2],
+["IU.SFJD.00.BHZ","Kangerlussuaq","Greenland",66.99,-50.62,1],["II.ALE.00.BHZ","Alert","Canada",82.50,-62.35,2],
+["IU.BBSR.00.BHZ","Bermuda","Atlantic",32.37,-64.70,2],["IU.SJG.00.BHZ","San Juan","Puerto Rico",18.11,-66.15,1],
+["IU.TEIG.00.BHZ","Tepich","Mexico",20.23,-88.28,2],["IU.SLBS.00.BHZ","Sierra la Laguna","Mexico",23.69,-109.94,2],
+["II.JTS.00.BHZ","Las Juntas","Costa Rica",10.29,-84.95,2],["IU.SDV.00.BHZ","Santo Domingo","Venezuela",8.88,-70.63,2],
+["IU.OTAV.00.BHZ","Otavalo","Ecuador",0.24,-78.45,1],["II.NNA.00.BHZ","Ñaña","Peru",-11.99,-76.84,1],
+["IU.LVC.00.BHZ","Limón Verde","Chile",-22.61,-68.91,2],["IU.TRQA.00.BHZ","Tornquist","Argentina",-38.06,-61.98,1],
+["II.EFI.00.BHZ","East Falkland","Falkland Is.",-51.68,-58.06,1],["IU.RCBR.00.BHZ","Riachuelo","Brazil",-5.82,-35.90,2],
+["IU.PTGA.00.BHZ","Pitinga","Brazil",-0.73,-59.97,2],["II.ASCN.00.BHZ","Ascension","Atlantic",-7.93,-14.36,2],
+["II.SACV.00.BHZ","Santiago","Cabo Verde",14.97,-23.61,2],["II.CMLA.00.BHZ","Chã de Macela","Azores",37.76,-25.52,2],
+["IU.KOWA.00.BHZ","Kowa","Mali",14.50,-4.01,2],["II.MBAR.00.BHZ","Mbarara","Uganda",-0.60,30.74,2],
+["IU.KMBO.00.BHZ","Kilima Mbogo","Kenya",-1.13,37.25,1],["IU.FURI.00.BHZ","Furi","Ethiopia",8.90,38.68,2],
+["II.MSEY.00.BHZ","Mahé","Seychelles",-4.67,55.48,1],["II.ABPO.00.BHZ","Ambohimpanompo","Madagascar",-19.02,47.23,2],
+["IU.TSUM.00.BHZ","Tsumeb","Namibia",-19.20,17.58,1],["II.SUR.00.BHZ","Sutherland","South Africa",-32.38,20.81,1],
+["IU.LSZ.00.BHZ","Lusaka","Zambia",-15.28,28.19,2],["II.DGAR.00.BHZ","Diego Garcia","Indian Ocean",-7.41,72.45,2],
+["II.COCO.00.BHZ","Cocos Islands","Indian Ocean",-12.19,96.83,2],["IU.MAKZ.00.BHZ","Makanchi","Kazakhstan",46.81,81.98,2],
+["II.BRVK.00.BHZ","Borovoye","Kazakhstan",53.06,70.28,2],["II.ARU.00.BHZ","Arti","Russia",56.43,58.56,2],
+["II.TLY.00.BHZ","Talaya","Russia",51.68,103.64,2],["IU.YAK.00.BHZ","Yakutsk","Russia",62.03,129.68,2],
+["IU.TIXI.00.BHZ","Tiksi","Russia",71.65,128.87,2],["IU.BILL.00.BHZ","Bilibino","Russia",68.07,166.45,2],
+["IU.PET.00.BHZ","Petropavlovsk","Russia",53.02,158.65,2],["IU.MA2.00.BHZ","Magadan","Russia",59.58,150.77,2],
+["IU.YSS.00.BHZ","Yuzhno-Sakhalinsk","Russia",46.96,142.76,2],["IU.KEV.00.BHZ","Kevo","Finland",69.76,27.00,1],
+["IU.KBS.00.BHZ","Ny-Ålesund","Svalbard",78.92,11.94,1],["II.UOSS.00.BHZ","Sharjah","UAE",24.95,56.20,1],
+["II.RPN.00.BHZ","Rapa Nui","Chile",-27.13,-109.33,1],["IU.PTCN.00.BHZ","Pitcairn","Pacific",-25.07,-130.10,2],
+["II.HOPE.00.BHZ","Hope Point","South Georgia",-54.28,-36.49,2],["II.TRIS.00.BHZ","Tristan da Cunha","Atlantic",-37.07,-12.32,2],
+];
+
+/* ===== state ===== */
+let ground={};   // station idx -> {p (0..1 percentile vs own norm), db, hist:[{end,db}]}
+let quakes=[];
+let simulated=false;
+let quietIdx=-1;
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const signals={ok:0,tried:0,quakes:0};
+
+/* ===== math (same tested core as the flagship) ===== */
+function psdBandMeans(windows){
+  const out=[];
+  for(const w of windows){
+    let s=0,n=0;
+    for(const [f,p] of w.pairs)if(f>=4&&f<=14&&isFinite(p)){s+=p;n++}
+    if(n>=3)out.push({end:w.end,db:s/n});
+  }
+  return out;
+}
+function groundPercentile(means){
+  /* Deseasonalized anomaly percentile:
+     1) compute each hour-of-day's mean level across the window (the station's daily rhythm)
+     2) each sample's anomaly = its level minus its hour's mean (removes day/night cycle)
+     3) rank the latest sample's anomaly against ALL other anomalies.
+     With ~90 windows in 48h this yields granular percentiles instead of 0/100 extremes,
+     and answers the right question: is the ground stiller than usual FOR THIS HOUR? */
+  if(means.length<12)return null;
+  means.sort((a,b)=>a.end-b.end);
+  const hsum=new Array(24).fill(0),hn=new Array(24).fill(0);
+  for(const m of means){
+    const h=new Date(m.end).getUTCHours();
+    hsum[h]+=m.db;hn[h]++;
+  }
+  const hmean=h=>hn[h]?hsum[h]/hn[h]:null;
+  const anom=m=>{const mu=hmean(new Date(m.end).getUTCHours());return mu===null?null:m.db-mu};
+  const cur=means[means.length-1],ca=anom(cur);
+  if(ca===null)return null;
+  const others=means.slice(0,-1).map(anom).filter(a=>a!==null);
+  if(others.length<10)return null;
+  const below=others.filter(a=>a<ca).length;
+  return {p:below/others.length,db:cur.db,hist:means};
+}
+function parseMustangXML(txt){
+  const doc=new DOMParser().parseFromString(txt,'text/xml');
+  return [...doc.getElementsByTagName('Psd')].map(el=>{
+    const end=Date.parse(el.getAttribute('end')||el.getAttribute('start')||'');
+    const pairs=[...el.getElementsByTagName('value')].map(v=>[
+      parseFloat(v.getAttribute('freq')),parseFloat(v.getAttribute('power'))]);
+    return {end,pairs};
+  }).filter(w=>isFinite(w.end)&&w.pairs.length);
+}
+
+/* ===== headline ===== */
+const elName=document.getElementById('placeName'),elMeta=document.getElementById('placeMeta'),
+      elLoud=document.getElementById('loudLine'),statusLine=document.getElementById('statusLine'),
+      sparkLabel=document.getElementById('sparkLabel');
+let lastKey='';
+function updateHeadline(){
+  let bi=-1,bp=2,wi=-1,wp=-1;
+  for(const k in ground){
+    const g=ground[k];
+    if(g.p<bp){bp=g.p;bi=+k}
+    if(g.p>wp){wp=g.p;wi=+k}
+  }
+  quietIdx=bi;
+  if(bi<0)return;
+  const b=STATIONS[bi],w=STATIONS[wi];
+  const still=Math.round((1-bp)*100), key=b[1]+still+(simulated?'s':'');
+  if(key!==lastKey){
+    lastKey=key;
+    elName.classList.add('dim');
+    setTimeout(()=>{
+      elName.textContent=b[1];
+      elMeta.innerHTML=`${b[2]} &nbsp;·&nbsp; station <b>${b[0].split('.')[1]}</b> &nbsp;·&nbsp; stiller than <b>${still}%</b> of its usual hours, adjusted for time of day`;
+      elLoud.innerHTML=wi>=0&&wi!==bi?`meanwhile, the ground trembles most in: <b>${w[1]}, ${w[2]}</b> — ${Math.round(wp*100)}th percentile of its own hum`:'';
+      elName.classList.remove('dim');
+      drawSpark();
+    },reduceMotion?0:300);
+  }
+}
+function renderStatus(){
+  if(simulated){
+    statusLine.innerHTML=`<span class="sim">simulated signal — for design preview only · no real measurements shown</span>`;
+    return;
+  }
+  const parts=[];
+  if(signals.ok)parts.push(`listening at <b>${signals.ok}</b> of ${STATIONS.length} stations ✓`);
+  if(servedAt)parts.push(`as of <b>${String(servedAt.getUTCHours()).padStart(2,'0')}:${String(servedAt.getUTCMinutes()).padStart(2,'0')} UTC</b>`);
+  if(signals.quakes)parts.push(`<b>${signals.quakes}</b> tremor${signals.quakes>1?'s':''} this hour ✓`);
+  statusLine.innerHTML=parts.length
+    ?'the ground reports · '+parts.join(' &nbsp;·&nbsp; ')+' · 4–14 hz human band · hourly'
+    :(signals.tried>=STATIONS.length
+      ?'the network is unreachable from this environment — nothing will be pretended'
+      :`dialing the ground · ${signals.tried} of ${STATIONS.length} stations tried…`);
+}
+
+/* ===== canvases ===== */
+const cv=document.getElementById('map'),ctx=cv.getContext('2d');
+const gv=document.getElementById('glow'),gtx=gv.getContext('2d');
+const spark=document.getElementById('spark'),spx=spark.getContext('2d');
+let W=0,H=0,DPR=1,mapX=0,mapY=0,mapW=0,mapH=0;
+const LATT=86,LATB=-60;
+function resize(){
+  DPR=Math.min(2,devicePixelRatio||1);
+  const r=cv.parentElement.getBoundingClientRect();
+  W=r.width;H=r.height;
+  for(const [c,x] of [[cv,ctx],[gv,gtx]]){c.width=W*DPR;c.height=H*DPR;x.setTransform(DPR,0,0,DPR,0,0)}
+  const ar=360/((LATT-LATB)*1.28);
+  mapW=Math.min(W-16,H*ar);mapH=mapW/ar;
+  if(mapH>H-52){mapH=H-52;mapW=mapH*ar}
+  mapX=(W-mapW)/2;mapY=Math.max((H-mapH)/2,26);
+  drawSpark();
+}
+addEventListener('resize',resize);resize();
+const px=lon=>mapX+(lon+180)/360*mapW;
+const py=lat=>mapY+(LATT-lat)/(LATT-LATB)*mapH;
+function sprite(rgb){
+  const s=document.createElement('canvas');s.width=s.height=64;
+  const x=s.getContext('2d');
+  const g=x.createRadialGradient(32,32,0,32,32,32);
+  g.addColorStop(0,`rgba(${rgb},0.85)`);g.addColorStop(0.35,`rgba(${rgb},0.28)`);g.addColorStop(1,`rgba(${rgb},0)`);
+  x.fillStyle=g;x.fillRect(0,0,64,64);
+  return s;
+}
+const sprMoon=sprite('242,235,214'),sprEmber=sprite('196,84,42');
+const stars=Array.from({length:110},()=>({x:Math.random(),y:Math.random(),a:0.04+Math.random()*0.1,ph:Math.random()*6.283}));
+const dots=[];
+for(const [r,runs] of ROWS){const lat=LAT0+r*STEP;
+  for(const [s,len] of runs)for(let k=0;k<len;k++)dots.push({lon:LON0+(s+k)*STEP,lat,ph:Math.random()*6.283});}
+/* each land dot learns its 5 nearest stations once; the ground's signal spreads from there */
+(function nearest(){
+  for(const d of dots){
+    const cs=[];
+    for(let i=0;i<STATIONS.length;i++){
+      let dl=Math.abs(d.lon-STATIONS[i][4]);if(dl>180)dl=360-dl;
+      const dist=Math.hypot(dl*Math.cos(d.lat*Math.PI/180),d.lat-STATIONS[i][3]);
+      cs.push([i,dist]);
+    }
+    cs.sort((a,b)=>a[1]-b[1]);
+    d.near=cs.slice(0,5);
+  }
+})();
+const cMoon=[242,235,214],cDusk=[62,76,102],cEmber=[196,84,42];
+function mix(a,b,t){return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t]}
+
+function draw(ts){
+  const t=ts/1000;
+  ctx.clearRect(0,0,W,H);gtx.clearRect(0,0,W,H);
+  for(const s of stars){
+    const tw=reduceMotion?1:(0.6+0.4*Math.sin(t*0.4+s.ph));
+    ctx.fillStyle=`rgba(242,235,214,${s.a*tw})`;
+    ctx.fillRect(s.x*W,s.y*H,1,1);
+  }
+  /* the world, painted by the ground: interpolated station stillness across land dots.
+     brightness fades with distance from the nearest reporting instrument — the map
+     never claims to hear further than it can. oceans carry nothing. */
+  const base=mapW/240*1.5;
+  gtx.globalCompositeOperation='lighter';
+  for(const d of dots){
+    let sw=0,sq=0,dmin=1e9;
+    for(const [si,dist] of d.near){
+      const g=ground[si];
+      if(g===undefined)continue;
+      const w=1/(dist*dist+4);
+      sw+=w;sq+=w*(1-g.p);
+      if(dist<dmin)dmin=dist;
+    }
+    const x=px(d.lon),y=py(d.lat);
+    if(!sw){ /* no instrument in earshot yet: bare stage */
+      ctx.fillStyle='rgba(90,106,128,0.15)';
+      ctx.beginPath();ctx.arc(x,y,base*0.45,0,6.283);ctx.fill();
+      continue;
+    }
+    const q=sq/sw;                       /* interpolated stillness 0..1 */
+    const conf=Math.exp(-dmin/22);       /* how far the nearest reporting station is */
+    /* bloom pass */
+    if(conf>0.3){
+      const breathe=reduceMotion?0.5:(Math.sin(t*0.6+d.ph)+1)/2;
+      if(q>0.68){
+        const s=base*(5.5+3.5*breathe)*((q-0.68)/0.32)*conf;
+        gtx.globalAlpha=(0.10+0.14*((q-0.68)/0.32)*(0.6+0.4*breathe))*conf;
+        gtx.drawImage(sprMoon,x-s/2,y-s/2,s,s);
+      } else if(q<0.30){
+        const fl=reduceMotion?0.5:(Math.sin(t*7+d.ph*3)+1)/2;
+        const s=base*3.4*(1+0.25*fl)*conf;
+        gtx.globalAlpha=(0.09+0.10*fl)*conf;
+        gtx.drawImage(sprEmber,x-s/2,y-s/2,s,s);
+      }
+    }
+    /* crisp core */
+    let col;
+    if(q>0.55)col=mix(cDusk,cMoon,(q-0.55)/0.45);
+    else      col=mix(cEmber,cDusk,q/0.55);
+    /* fade toward neutral dusk where confidence is low */
+    col=mix([90,106,128],col,0.25+0.75*conf);
+    let alpha=0.16+ (0.28+0.52*q)*conf;
+    if(q<0.30&&conf>0.4&&!reduceMotion)alpha*=0.80+0.20*Math.sin(t*7+d.ph*3);
+    const r=base*(0.42+(0.20+0.55*q)*conf);
+    ctx.fillStyle=`rgba(${col[0]|0},${col[1]|0},${col[2]|0},${alpha})`;
+    ctx.beginPath();ctx.arc(x,y,r,0,6.283);ctx.fill();
+  }
+  gtx.globalAlpha=1;gtx.globalCompositeOperation='source-over';
+  /* the instruments: quiet triangles, lit when reporting */
+  for(let i=0;i<STATIONS.length;i++){
+    const x=px(STATIONS[i][4]),y=py(STATIONS[i][3]);
+    const on=ground[i]!==undefined;
+    ctx.strokeStyle=on?'rgba(242,235,214,0.55)':'rgba(139,155,176,0.18)';
+    ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x,y-4);ctx.lineTo(x+3.5,y+2);ctx.lineTo(x-3.5,y+2);ctx.closePath();ctx.stroke();
+  }
+  /* quakes: the ground's own events */
+  for(const qk of quakes){
+    const age=(Date.now()-qk.t)/1000,rr=(age%14)/14;
+    ctx.strokeStyle=`rgba(201,120,71,${0.34*(1-rr)})`;ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(px(qk.lon),py(qk.lat),4+rr*(8+qk.mag*4),0,6.283);ctx.stroke();
+  }
+  /* stillest ground: knockout reticle + label */
+  if(quietIdx>=0){
+    const st=STATIONS[quietIdx],x=px(st[4]),y=py(st[3]);
+    const pu=reduceMotion?0.5:(Math.sin(t*1.4)+1)/2;
+    const ko=ctx.createRadialGradient(x,y,0,x,y,24);
+    ko.addColorStop(0,'rgba(5,7,13,0.68)');ko.addColorStop(0.65,'rgba(5,7,13,0.38)');ko.addColorStop(1,'rgba(5,7,13,0)');
+    ctx.fillStyle=ko;ctx.beginPath();ctx.arc(x,y,24,0,6.283);ctx.fill();
+    if(!reduceMotion){
+      const k=(t%9)/9;
+      ctx.strokeStyle=`rgba(242,235,214,${0.30*(1-k)})`;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(x,y,24+k*mapW*0.09,0,6.283);ctx.stroke();
+    }
+    const rot=reduceMotion?0:t*0.35,R=11+pu*2.5;
+    ctx.strokeStyle=`rgba(242,235,214,${0.85+0.15*pu})`;ctx.lineWidth=1.4;
+    ctx.beginPath();ctx.arc(x,y,R,0,6.283);ctx.stroke();
+    for(let i=0;i<4;i++){
+      const an=rot+i*Math.PI/2;
+      ctx.beginPath();
+      ctx.moveTo(x+Math.cos(an)*(R+3),y+Math.sin(an)*(R+3));
+      ctx.lineTo(x+Math.cos(an)*(R+9),y+Math.sin(an)*(R+9));
+      ctx.stroke();
+    }
+    ctx.fillStyle='rgba(242,235,214,1)';ctx.beginPath();ctx.arc(x,y,2.6,0,6.283);ctx.fill();
+    const nm=st[1].toUpperCase();
+    ctx.font='500 10px "IBM Plex Mono"';
+    try{ctx.letterSpacing='2px'}catch(e){}
+    const tw=ctx.measureText(nm).width;
+    const side=(x+tw+70>mapX+mapW)?-1:1;
+    const lx2=x+side*(R+30);
+    ctx.strokeStyle='rgba(242,235,214,0.5)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x+side*(R+12),y);ctx.lineTo(lx2,y);ctx.stroke();
+    ctx.textAlign=side>0?'left':'right';ctx.textBaseline='middle';
+    const pad=6,bx0=side>0?lx2+4:lx2-4-tw-pad*2;
+    ctx.fillStyle='rgba(5,7,13,0.85)';ctx.fillRect(bx0,y-10,tw+pad*2,20);
+    ctx.fillStyle='rgba(242,235,214,0.95)';
+    ctx.fillText(nm,side>0?lx2+4+pad:lx2-4-pad,y+0.5);
+    try{ctx.letterSpacing='0px'}catch(e){}
+    ctx.textAlign='start';ctx.textBaseline='alphabetic';
+  }
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+/* ===== the 48h hum sparkline of the headline station ===== */
+function drawSpark(){
+  const r=spark.parentElement.getBoundingClientRect();
+  spark.width=r.width*DPR;spark.height=r.height*DPR;
+  spx.setTransform(DPR,0,0,DPR,0,0);
+  spx.clearRect(0,0,r.width,r.height);
+  if(quietIdx<0||!ground[quietIdx]){sparkLabel.textContent='';return}
+  const g=ground[quietIdx],st=STATIONS[quietIdx];
+  const h=g.hist;if(!h||h.length<4){sparkLabel.textContent='';return}
+  sparkLabel.textContent=`${st[0].split('.')[1]} · ground hum, last ${Math.round((h[h.length-1].end-h[0].end)/3600000)}h`;
+  const dbs=h.map(m=>m.db),mn=Math.min(...dbs),mx=Math.max(...dbs),sp=Math.max(1,mx-mn);
+  spx.beginPath();
+  h.forEach((m,i)=>{
+    const x=i/(h.length-1)*(r.width-4)+2;
+    const y=r.height-5-((m.db-mn)/sp)*(r.height-12);
+    i?spx.lineTo(x,y):spx.moveTo(x,y);
+  });
+  spx.strokeStyle='rgba(139,155,176,0.6)';spx.lineWidth=1;spx.stroke();
+  const last=h[h.length-1];
+  const lx=r.width-2,ly=r.height-5-((last.db-mn)/sp)*(r.height-12);
+  spx.fillStyle='#F2EBD6';spx.beginPath();spx.arc(lx-2,ly,2.2,0,6.283);spx.fill();
+}
+
+/* ===== probe ===== */
+const probe=document.getElementById('probe');
+let probeTimer=null;
+cv.addEventListener('pointerdown',e=>{
+  const rect=cv.getBoundingClientRect();
+  const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  let bi=-1,bd=1e9;
+  for(let i=0;i<STATIONS.length;i++){
+    const d2=(px(STATIONS[i][4])-mx)**2+(py(STATIONS[i][3])-my)**2;
+    if(d2<bd){bd=d2;bi=i}
+  }
+  if(bd>45*45)return;
+  const st=STATIONS[bi],g=ground[bi];
+  const gl=g!==undefined
+    ?`<div class="p-score">stiller than ${Math.round((1-g.p)*100)}% of its usual hours · ${g.db.toFixed(1)} dB (4–14 hz)${simulated?' · SIMULATED':''}</div>`
+    :`<div class="p-score">not reporting from this environment</div>`;
+  probe.innerHTML=`<div class="p-name">${st[1]}</div>
+    <div class="p-line">${st[2]} · station ${st[0].split('.')[1]} (${st[0].split('.')[0]})</div>${gl}`;
+  probe.style.left=Math.min(W-290,mx+14)+'px';
+  probe.style.top=Math.max(8,my-10)+'px';
+  probe.classList.add('on');
+  clearTimeout(probeTimer);
+  probeTimer=setTimeout(()=>probe.classList.remove('on'),4500);
+});
+
+/* ===== fetching: tier 1 first, tier 2 behind it ===== */
+const waiting=document.getElementById('waiting'),demoBtn=document.getElementById('demoBtn'),
+      dialBtn=document.getElementById('dialBtn'),
+      waitLine=document.getElementById('waitLine'),waitSub=document.getElementById('waitSub');
+let lastErr='';
+const errTally={};
+let sampleUrl='';
+let servedAt=null;      // Date of served ground.json, when using the backend path
+let dialing=false;      // true only in direct-dial fallback mode
+function fetchT(url,ms){
+  const ac=new AbortController();
+  const to=setTimeout(()=>ac.abort(),ms);
+  return fetch(url,{signal:ac.signal}).finally(()=>clearTimeout(to));
+}
+/* ---- the intended path: one pre-computed JSON, one calm paint ---- */
+const codeToIdx={};
+STATIONS.forEach((s,i)=>{codeToIdx[s[0].split('.').slice(0,2).join('.')]=i});
+async function loadServed(quiet){
+  try{
+    const r=await fetchT('./ground.json?t='+Math.floor(Date.now()/60000),6000);
+    if(!r.ok)throw 0;
+    const j=await r.json();
+    if(!j.stations||!Object.keys(j.stations).length)throw 0;
+    const next={};
+    for(const code in j.stations){
+      const i=codeToIdx[code];
+      if(i===undefined)continue;
+      const s=j.stations[code];
+      next[i]={p:s.p,db:s.db,hist:(s.hist||[]).map(([end,db])=>({end,db}))};
+    }
+    if(!Object.keys(next).length)throw 0;
+    ground=next;
+    servedAt=new Date(j.generated);
+    signals.ok=Object.keys(next).length;
+    waiting.style.display='none';
+    lastKey='';updateHeadline();renderStatus();
+    return true;
+  }catch(e){
+    if(!quiet)showChoice();
+    return false;
+  }
+}
+function showChoice(){
+  waitLine.textContent='no served measurements found';
+  waitSub.textContent='This site has no ground.json beside it yet (the hourly backend worker creates one — see backend/). You can dial the 98 stations directly from this browser instead: slower, and the map assembles progressively.';
+  dialBtn.style.display='inline-block';
+  demoBtn.style.display='inline-block';
+}
+function dialProgress(){
+  if(simulated||!dialing)return;
+  if(!signals.ok){
+    waitLine.textContent=`dialing the ground · ${signals.tried} of ${STATIONS.length} stations tried`;
+    if(signals.tried>=8)
+      waitSub.textContent=`No station has answered yet${lastErr?` (last error: ${lastErr})`:''}. Still dialing — one answer is enough to light the map.`;
+  }
+}
+function verdict(){
+  if(signals.ok||simulated)return;
+  waitLine.textContent='the ground did not answer';
+  const parts=Object.entries(errTally).map(([k,v])=>`${k}: ${v}`).join(' · ');
+  waitSub.innerHTML=`Every station failed — breakdown: <b>${parts||'unknown'}</b>.<br><br>`+
+    `To diagnose: open this exact request in a normal browser tab —<br><span style="user-select:all;color:var(--moon-soft);word-break:break-all">${sampleUrl}</span><br><br>`+
+    `If the tab shows XML data, the service works and the block is CORS policy (use the backend worker). If the tab shows an error page, send me what it says. The simulation below previews the design meanwhile.`;
+  demoBtn.style.display='inline-block';
+  renderStatus();
+}
+async function fetchStation(i){
+  const target=STATIONS[i][0];
+  const end=new Date(),start=new Date(end-72*3600000);
+  const iso=d=>d.toISOString().slice(0,19);
+  const q=`/mustang/noise-psd/1/query?target=${target}.M&starttime=${iso(start)}&endtime=${iso(end)}&format=xml`;
+  if(!sampleUrl)sampleUrl='https://service.iris.edu'+q;
+  let done=false,stErr='';
+  for(const host of ['https://service.iris.edu','https://service.earthscope.org']){
+    try{
+      /* one abort covers connection AND body download — no more hung stations */
+      const ac=new AbortController();
+      const to=setTimeout(()=>ac.abort(),20000);
+      let txt;
+      try{
+        const r=await fetch(host+q,{signal:ac.signal});
+        if(!r.ok){lastErr=stErr='http '+r.status;continue}
+        txt=await r.text();
+      }finally{clearTimeout(to)}
+      const wins=parseMustangXML(txt);
+      if(!wins.length){lastErr=stErr='unexpected data format';continue}
+      const res=groundPercentile(psdBandMeans(wins));
+      if(!res){lastErr=stErr='not enough history';continue}
+      ground[i]=res;signals.ok++;
+      waiting.style.display='none';
+      done=true;break;
+    }catch(e){
+      lastErr=stErr=e.name==='AbortError'?'timeout':'network/cors blocked';
+      if(stErr==='timeout')break; /* rate-limited or slow: don't double the load on a mirror */
+    }
+  }
+  if(!done&&stErr)errTally[stErr]=(errTally[stErr]||0)+1;
+  signals.tried++;
+  dialProgress();renderStatus();
+  if(signals.tried>=STATIONS.length&&!signals.ok)verdict();
+  return done;
+}
+/* polite worker pool: at most 4 stations in flight, flagships first, one retry round.
+   the headline settles exactly twice: an early paint, and a final settle — no churn. */
+async function fetchAll(){
+  if(simulated)return;
+  dialing=true;
+  let earlyDone=false;
+  const early=()=>{if(!earlyDone&&signals.ok){earlyDone=true;lastKey='';updateHeadline()}};
+  const earlyTimer=setTimeout(early,20000);
+  const order=STATIONS.map((s,i)=>i).sort((a,b)=>STATIONS[a][5]-STATIONS[b][5]);
+  const failed=[];
+  async function drain(list,conc){
+    let n=0;
+    const worker=async()=>{
+      while(n<list.length&&!simulated){
+        const i=list[n++];
+        if(ground[i]!==undefined)continue;
+        const ok=await fetchStation(i);
+        if(!ok)failed.push(i);
+        if(signals.ok>=12)early();
+      }
+    };
+    await Promise.all(Array.from({length:conc},worker));
+  }
+  await drain(order,4);
+  if(failed.length&&signals.ok&&!simulated){
+    signals.tried=STATIONS.length-failed.length;
+    const retry=failed.splice(0);
+    await drain(retry,2);
+  }
+  clearTimeout(earlyTimer);
+  if(signals.ok){lastKey='';updateHeadline();renderStatus()}
+}
+async function fetchQuakes(){
+  try{
+    const r=await fetchT('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson',8000);
+    if(!r.ok)return;
+    const j=await r.json();
+    quakes=(j.features||[]).slice(0,40).map(f=>({
+      lon:f.geometry.coordinates[0],lat:f.geometry.coordinates[1],
+      mag:Math.max(0.5,f.properties.mag||1),t:Date.now()-Math.random()*8000}));
+    signals.quakes=quakes.length;renderStatus();
+  }catch(e){}
+}
+/* clearly-labelled simulation for sandboxed previews */
+function simulate(){
+  simulated=true;
+  waiting.style.display='none';
+  const now=Date.now();
+  for(let i=0;i<STATIONS.length;i++){
+    const hist=[];const bias=Math.sin(i*3.7)*6;
+    const endAnom=Math.sin(i*1.9)*3+Math.cos(i*0.7)*1.5; /* varied final-hour anomalies */
+    for(let h=95;h>=0;h--){
+      const end=now-h*1800000,hr=new Date(end).getUTCHours();
+      const db=-138+bias+(hr>=7&&hr<=22?10:2)+Math.sin(h*0.9+i)*1.8+(h===0?endAnom:0);
+      hist.push({end,db});
+    }
+    const res=groundPercentile(hist.map(m=>({end:m.end,db:m.db})));
+    if(res)ground[i]=res;
+  }
+  lastKey='';updateHeadline();renderStatus();
+}
+dialBtn.addEventListener('click',()=>{
+  dialBtn.style.display='none';demoBtn.style.display='none';
+  waitLine.textContent='dialing the ground';
+  waitSub.textContent='Reaching seismometers across the planet. One answer is enough to light the map.';
+  fetchAll();
+});
+demoBtn.addEventListener('click',simulate);
+document.getElementById('refreshBtn').addEventListener('click',async()=>{
+  if(simulated)return;
+  if(servedAt){lastKey='';loadServed(true);return}
+  ground={};signals.ok=0;signals.tried=0;lastKey='';quietIdx=-1;
+  renderStatus();fetchAll();fetchQuakes();
+});
+(async()=>{
+  const ok=await loadServed(false);
+  fetchQuakes();
+  if(ok)setInterval(()=>loadServed(true),5*60*1000);      // served: quiet refresh, single settle
+})();
+setInterval(()=>{if(!simulated&&dialing&&!servedAt){ground={};signals.ok=0;signals.tried=0;fetchAll()}},60*60*1000);
+setInterval(fetchQuakes,10*60*1000);
+renderStatus();
+
+/* ===== how overlay ===== */
+const how=document.getElementById('how');
+document.getElementById('howBtn').addEventListener('click',()=>how.classList.add('open'));
+document.getElementById('howClose').addEventListener('click',()=>how.classList.remove('open'));
+how.addEventListener('click',e=>{if(e.target===how)how.classList.remove('open')});
+addEventListener('keydown',e=>{if(e.key==='Escape')how.classList.remove('open')});
+
+/* ===== keep this moment ===== */
+document.getElementById('saveBtn').addEventListener('click',async()=>{
+  if(quietIdx<0)return;
+  await document.fonts.ready;
+  const st=STATIONS[quietIdx],g=ground[quietIdx];
+  const still=Math.round((1-g.p)*100);
+  const cvs=document.createElement('canvas');cvs.width=1080;cvs.height=1350;
+  const x=cvs.getContext('2d');
+  x.fillStyle='#05070D';x.fillRect(0,0,1080,1350);
+  for(let i=0;i<160;i++){x.fillStyle=`rgba(242,235,214,${Math.random()*0.10})`;
+    x.fillRect(Math.random()*1080,Math.random()*1350,1,1)}
+  const mw=880,mh=mw*((LATT-LATB)*1.28)/360,mxo=(1080-mw)/2,myo=430;
+  const gx=lon=>mxo+(lon+180)/360*mw,gy=lat=>myo+(LATT-lat)/(LATT-LATB)*mh;
+  for(const d of dots){
+    let sw=0,sq=0,dmin=1e9;
+    for(const [si,dist] of d.near){
+      const gg=ground[si];if(gg===undefined)continue;
+      const w=1/(dist*dist+4);sw+=w;sq+=w*(1-gg.p);
+      if(dist<dmin)dmin=dist;
+    }
+    if(!sw){x.fillStyle='rgba(90,106,128,0.16)';
+      x.beginPath();x.arc(gx(d.lon),gy(d.lat),1.4,0,6.283);x.fill();continue}
+    const q=sq/sw,conf=Math.exp(-dmin/22);
+    let col;if(q>0.55)col=mix(cDusk,cMoon,(q-0.55)/0.45);else col=mix(cEmber,cDusk,q/0.55);
+    col=mix([90,106,128],col,0.25+0.75*conf);
+    x.fillStyle=`rgba(${col[0]|0},${col[1]|0},${col[2]|0},${0.16+(0.30+0.5*q)*conf})`;
+    x.beginPath();x.arc(gx(d.lon),gy(d.lat),1.4+(0.6+1.6*q)*conf,0,6.283);x.fill();
+  }
+  const bx=gx(st[4]),by=gy(st[3]);
+  x.strokeStyle='rgba(242,235,214,0.9)';x.lineWidth=2;
+  x.beginPath();x.arc(bx,by,16,0,6.283);x.stroke();
+  x.strokeStyle='rgba(242,235,214,0.35)';x.beginPath();x.arc(bx,by,30,0,6.283);x.stroke();
+  x.fillStyle='#F2EBD6';x.beginPath();x.arc(bx,by,4,0,6.283);x.fill();
+  x.textAlign='center';
+  x.fillStyle='#8B9BB0';x.font='500 22px "IBM Plex Mono"';
+  x.fillText('T H E   Q U I E T   M A P  ·  G R O U N D   T R U T H',540,110);
+  x.fillStyle='#5A6A80';x.font='400 19px "IBM Plex Mono"';
+  x.fillText('THE STILLEST GROUND ON EARTH RIGHT NOW',540,180);
+  x.fillStyle='#F2EBD6';x.font='italic 300 92px "Cormorant Garamond", serif';
+  if(x.measureText(st[1]).width>960)x.font='italic 300 68px "Cormorant Garamond", serif';
+  x.shadowColor='rgba(242,235,214,0.25)';x.shadowBlur=40;
+  x.fillText(st[1],540,300);
+  x.shadowBlur=0;
+  x.fillStyle='#8B9BB0';x.font='400 24px "IBM Plex Mono"';
+  x.fillText(`${st[2]}  ·  station ${st[0].split('.')[1]}  ·  stiller than ${still}% of its usual hours`,540,360);
+  const dstr=new Date().toUTCString().slice(0,22)+' UTC';
+  x.fillStyle='#5A6A80';x.font='400 20px "IBM Plex Mono"';
+  x.fillText(`${Math.abs(st[3]).toFixed(2)}°${st[3]>=0?'N':'S'}  ${Math.abs(st[4]).toFixed(2)}°${st[4]>=0?'E':'W'}  ·  4–14 Hz`,540,1230);
+  x.fillText(dstr,540,1268);
+  x.strokeStyle='rgba(139,155,176,0.25)';x.beginPath();x.moveTo(340,1200);x.lineTo(740,1200);x.stroke();
+  x.fillStyle='#3E4C66';x.font='400 17px "IBM Plex Mono"';
+  x.fillText(simulated?'SIMULATED SIGNAL — DESIGN PREVIEW ONLY':'measured by the earth itself',540,1316);
+  const a=document.createElement('a');
+  a.download=`ground-truth-${st[1].toLowerCase().replace(/[^a-z]/g,'')}-${Date.now()}.png`;
+  a.href=cvs.toDataURL('image/png');a.click();
+});
+</script>
+</body>
+</html>
