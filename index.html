@@ -35,6 +35,9 @@ h1.place.dim{opacity:.15}
 .meta b{color:var(--moon);font-weight:500}
 .counter{margin-top:4px;font-size:10px;letter-spacing:.1em;color:var(--slate-dim)}
 .counter b{color:#C97847;font-weight:400}
+.pitch{margin:10px auto 0;max-width:720px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;
+  font-size:clamp(13px,1.5vw,17px);line-height:1.5;color:var(--moon-soft);letter-spacing:.02em}
+@media (max-height:720px){.pitch{display:none}}
 #stage{flex:1 1 auto;position:relative;min-height:0}
 canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #glow{pointer-events:none}
@@ -89,6 +92,10 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   padding:clamp(26px,5vw,46px);position:relative}
 .how-card h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(28px,4vw,40px);color:var(--moon);margin-bottom:6px}
 .how-sub{font-size:9.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--slate-dim);margin-bottom:24px}
+.how-lede{margin-bottom:26px;padding-bottom:22px;border-bottom:1px solid var(--hair)}
+.how-lede p{font-size:12px;line-height:1.95;color:var(--slate);margin-bottom:12px}
+.how-lede p:last-child{margin-bottom:0}
+.how-lede b{color:var(--moon-soft);font-weight:400}
 .how-step{display:flex;gap:16px;margin-bottom:20px;align-items:baseline}
 .how-n{font-size:10px;color:var(--slate-dim);letter-spacing:.2em;flex:0 0 22px}
 .how-step h3{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--moon);font-weight:500;margin-bottom:5px}
@@ -117,6 +124,7 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   <h1 class="place" id="placeName">&nbsp;</h1>
   <div class="meta" id="placeMeta"></div>
   <div class="counter" id="loudLine"></div>
+  <div class="pitch">Every map ever drawn shows where things are happening. This one listens for where they are not.</div>
 </header>
 
 <div id="stage">
@@ -154,6 +162,11 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
     <button class="how-close" id="howClose" aria-label="Close">✕</button>
     <h2>How the stillness is measured</h2>
     <div class="how-sub">no model · no estimates · only seismometers</div>
+
+    <div class="how-lede">
+      <p>For a century we have buried instruments in the planet's crust to catch it misbehaving — earthquakes, eruptions, distant bombs. Point those same instruments the other way and they reveal something stranger: <b>the earth can feel us</b>. Traffic, trains, factories, footsteps — civilization registers as a faint, permanent tremor in the rock. When the 2020 lockdowns emptied the streets, seismometers around the world watched the hum of humanity measurably fall. It was the first time our species turned its volume down and the planet noticed.</p>
+      <p>This map borrows that discovery and inverts the news. Every hour it asks a hundred of those buried instruments the question no newsroom asks: where, right now, has the ground gone <b>stillest</b> — quieter than its own normal, for this hour, in this place? Not the emptiest spot on Earth. The one having its calmest hour. Somewhere, always, the world is holding its breath. This is its address.</p>
+    </div>
 
     <div class="how-step"><div class="how-n">01</div><div>
       <h3>The instruments</h3>
