@@ -186,7 +186,7 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
 
     <div class="how-step"><div class="how-n">04</div><div>
       <h3>The title</h3>
-      <p>The stillest ground on Earth is the station furthest <b>below its own norm</b> — the calmest hour anywhere on the planet. The loudest is furthest above: weather, machines, crowds — or an earthquake, drawn as a rust ring from the USGS live feed.</p>
+      <p>The stillest ground on Earth is the station furthest <b>below its own norm</b> — the calmest hour anywhere on the planet. The loudest is furthest above: weather, machines, crowds — or an earthquake, drawn as a rust ring from the USGS live feed. Remote ocean outposts — mid-Pacific atolls, lone Atlantic rocks — report and paint the map, but never take the headline: surf, not people, sets their hum.</p>
     </div></div>
 
     <div class="how-note" id="howNote">
@@ -253,6 +253,13 @@ const STATIONS=[
 ["II.HOPE.00.BHZ","Hope Point","South Georgia",-54.28,-36.49,2],["II.TRIS.00.BHZ","Tristan da Cunha","Atlantic",-37.07,-12.32,2],
 ];
 
+/* ===== ocean outposts: they report and light the map, but surf — not people — sets their hum,
+   so they don't compete for the headline (stillest or loudest) ===== */
+const OUTPOST=new Set(['IU.GUMO','IU.RAR','IU.AFI','IU.FUNA','IU.TARA','IU.XMAS','IU.MIDW','IU.WAKE',
+  'IU.ADK','IU.BBSR','II.ASCN','II.SACV','II.CMLA','II.MSEY','II.DGAR','II.COCO','II.RPN','IU.PTCN',
+  'II.HOPE','II.TRIS']);
+const isOutpost=STATIONS.map(s=>OUTPOST.has(s[0].split('.').slice(0,2).join('.')));
+
 /* ===== state ===== */
 let ground={};   // station idx -> {p (0..1 percentile vs own norm), db, hist:[{end,db}]}
 let quakes=[];
@@ -312,6 +319,7 @@ let lastKey='',loudest='';
 function updateHeadline(){
   let bi=-1,bp=2,wi=-1,wp=-1;
   for(const k in ground){
+    if(isOutpost[+k])continue;
     const g=ground[k];
     if(g.p<bp){bp=g.p;bi=+k}
     if(g.p>wp){wp=g.p;wi=+k}
