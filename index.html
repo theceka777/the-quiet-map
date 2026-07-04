@@ -639,7 +639,7 @@ function verdict(){
   waitLine.textContent='the ground did not answer';
   const parts=Object.entries(errTally).map(([k,v])=>`${k}: ${v}`).join(' · ');
   waitSub.innerHTML=`Every station failed. Breakdown: <b>${parts||'unknown'}</b>.<br><br>`+
-    `To diagnose: open this exact request in a normal browser tab —<br><span style="user-select:all;color:var(--moon-soft);word-break:break-all">${sampleUrl}</span><br><br>`+
+    `To diagnose: open this exact request in a normal browser tab:<br><span style="user-select:all;color:var(--moon-soft);word-break:break-all">${sampleUrl}</span><br><br>`+
     `If the tab shows XML data, the service works and the block is CORS policy (use the backend worker). If the tab shows an error page, send me what it says. The simulation below previews the design meanwhile.`;
   demoBtn.style.display='inline-block';
   renderStatus();
@@ -821,7 +821,7 @@ document.getElementById('saveBtn').addEventListener('click',async()=>{
   x.fillText(dstr,540,1268);
   x.strokeStyle='rgba(139,155,176,0.25)';x.beginPath();x.moveTo(340,1200);x.lineTo(740,1200);x.stroke();
   x.fillStyle='#3E4C66';x.font='400 17px "IBM Plex Mono"';
-  x.fillText(simulated?'SIMULATED SIGNAL — DESIGN PREVIEW ONLY':'measured by the earth itself',540,1316);
+  x.fillText(simulated?'SIMULATED SIGNAL · DESIGN PREVIEW ONLY':'measured by the earth itself',540,1316);
   const a=document.createElement('a');
   a.download=`ground-truth-${st[1].toLowerCase().replace(/[^a-z]/g,'')}-${Date.now()}.png`;
   a.href=cvs.toDataURL('image/png');a.click();
