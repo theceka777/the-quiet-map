@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Quiet Map: Ground Truth — Editor · absolute values</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#05070D; --ink2:#0A0F1A;
+  --moon:#F2EBD6; --moon-soft:rgba(242,235,214,.62);
+  --slate:#8B9BB0; --slate-dim:#5A6A80;
+  --dusk:#3E4C66; --ember:#C4542A;
+  --hair:rgba(139,155,176,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ink);color:var(--moon);font-family:'IBM Plex Mono',ui-monospace,monospace;min-height:100vh}
+.brand{position:absolute;top:16px;left:20px;z-index:6}
+.wordmark{font-size:10px;letter-spacing:.4em;color:var(--slate);text-transform:uppercase}
+.wordmark b{color:var(--moon-soft);font-weight:500}
+.tagline{font-size:9px;letter-spacing:.12em;color:#C97847;margin-top:4px;text-transform:uppercase}
+.backlink{position:absolute;top:16px;right:20px;z-index:6;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--slate);text-decoration:none;border:1px solid var(--hair);padding:8px 12px;transition:color .25s,border-color .25s}
+.backlink:hover{color:var(--moon);border-color:rgba(242,235,214,.4)}
+header{text-align:center;padding:clamp(24px,4vh,44px) 20px 8px;position:relative;z-index:5}
+@media (max-width:960px){.brand{position:static;text-align:center;padding:12px 0 0}.backlink{position:static;display:inline-block;margin-top:10px}header{padding-top:10px}}
+.eyebrow{font-size:10px;letter-spacing:.42em;text-indent:.42em;color:var(--moon-soft);text-transform:uppercase;
+  display:flex;align-items:center;justify-content:center;gap:18px}
+.eyebrow::before,.eyebrow::after{content:"";height:1px;width:clamp(24px,6vw,72px);background:linear-gradient(90deg,transparent,rgba(139,155,176,.4))}
+.eyebrow::after{background:linear-gradient(90deg,rgba(139,155,176,.4),transparent)}
+h1.place{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;
+  font-size:clamp(28px,4.6vw,54px);line-height:1.05;color:var(--moon);margin-top:5px;
+  text-shadow:0 0 46px rgba(242,235,214,.18);min-height:1.05em}
+.meta{margin-top:7px;font-size:11px;letter-spacing:.12em;color:var(--slate)}
+.meta b{color:var(--moon);font-weight:500}
+.caveat{max-width:640px;margin:14px auto 0;font-size:9.5px;line-height:1.8;letter-spacing:.06em;color:var(--slate-dim);
+  border:1px solid var(--hair);padding:10px 16px;text-align:left}
+.caveat b{color:var(--slate);font-weight:500}
+#stage{position:relative;height:52vh;min-height:340px;margin-top:8px}
+canvas#map{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+.scale{
+  position:absolute;left:clamp(16px,3vw,40px);bottom:12px;z-index:7;
+  display:flex;align-items:center;gap:12px;
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  padding:9px 14px;border:1px solid var(--hair);
+  background:rgba(5,7,13,.72);backdrop-filter:blur(4px);
+}
+.s-bar{width:clamp(110px,15vw,220px);height:6px;border-radius:3px;
+  background:linear-gradient(90deg,#F2EBD6 0%,#8C93A0 26%,#3E4C66 52%,#6B3A2A 78%,#C4542A 100%);
+  box-shadow:0 0 12px rgba(242,235,214,.12)}
+.s-min{color:var(--moon)}.s-max{color:#C97847}
+#probe{position:absolute;pointer-events:none;z-index:8;background:rgba(5,7,13,.9);border:1px solid var(--hair);
+  padding:10px 14px;max-width:280px;backdrop-filter:blur(4px);opacity:0;transition:opacity .25s}
+#probe.on{opacity:1}
+#probe .p-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;color:var(--moon)}
+#probe .p-line{font-size:9.5px;letter-spacing:.1em;color:var(--slate);margin-top:4px;text-transform:uppercase}
+#probe .p-score{font-size:9.5px;letter-spacing:.1em;margin-top:3px;color:var(--moon-soft)}
+.status{text-align:center;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--slate-dim);padding:10px 16px 0;min-height:12px}
+.status b{color:#C97847;font-weight:400}
+/* ===== table ===== */
+#ledger{max-width:1080px;margin:18px auto 60px;padding:0 clamp(14px,3vw,32px)}
+.ledger-head{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--hair);padding-bottom:10px;margin-bottom:4px}
+.ledger-head h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:26px;color:var(--moon)}
+.ledger-head span{font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--slate-dim)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--slate-dim);font-weight:400;
+  text-align:left;padding:12px 10px 8px;border-bottom:1px solid var(--hair);cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:var(--moon-soft)}
+th.on{color:var(--moon)}
+th .arr{font-size:8px}
+td{padding:9px 10px;border-bottom:1px solid rgba(139,155,176,.08);vertical-align:middle;white-space:nowrap}
+td.rank{color:var(--slate-dim);font-size:10px;width:34px}
+td.place{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--moon)}
+td.country{color:var(--slate);font-size:10px;letter-spacing:.08em}
+td.code{color:var(--slate-dim);font-size:10px}
+td.db{color:var(--moon);font-weight:500}
+td.pos{width:clamp(80px,14vw,180px)}
+.posbar{position:relative;height:5px;border-radius:2.5px;background:linear-gradient(90deg,rgba(242,235,214,.35),rgba(140,147,160,.3) 26%,rgba(62,76,102,.35) 52%,rgba(107,58,42,.35) 78%,rgba(196,84,42,.4))}
+.posbar i{position:absolute;top:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:var(--moon);box-shadow:0 0 8px rgba(242,235,214,.7)}
+.posbar i.loud{background:var(--ember);box-shadow:0 0 8px rgba(196,84,42,.8)}
+td.pctl{color:var(--slate);font-size:10px}
+td.spark{width:100px}
+tr:hover td{background:rgba(139,155,176,.05)}
+tr.q1 td.place{text-shadow:0 0 24px rgba(242,235,214,.35)}
+footer{padding:0 20px 40px;text-align:center;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--slate-dim)}
+footer a{color:var(--slate);text-decoration:none;border-bottom:1px solid var(--hair)}
+footer a:hover{color:var(--moon)}
+#empty{max-width:520px;margin:60px auto;text-align:center;font-size:10px;letter-spacing:.14em;line-height:2;color:var(--slate);text-transform:uppercase;display:none}
+</style>
+</head>
+<body>
+
+<div class="brand">
+  <div class="wordmark">The Quiet Map · <b>Ground Truth</b></div>
+  <div class="tagline">editor's cut · absolute band power · uncorrected</div>
+</div>
+<a class="backlink" href="./index.html">← the map, each place against itself</a>
+
+<header>
+  <div class="eyebrow">the lowest raw ground hum on earth right now is</div>
+  <h1 class="place" id="placeName">&nbsp;</h1>
+  <div class="meta" id="placeMeta"></div>
+  <div class="caveat"><b>Read with care:</b> this page compares raw 4–14 Hz power between stations, which the main map deliberately refuses to do. Absolute level reflects bedrock, vault depth and sensor as much as human noise — a granite vault will beat a sediment site every hour of every year. Useful for editing and diagnostics; not a fair contest.</div>
+</header>
+
+<div id="stage">
+  <canvas id="map"></canvas>
+  <div id="probe"></div>
+  <div class="scale" aria-label="Legend: cream is lowest absolute power, ember is highest">
+    <span class="s-min" id="dbMin">–</span>
+    <div class="s-bar"></div>
+    <span class="s-max" id="dbMax">–</span>
+  </div>
+</div>
+
+<div class="status" id="statusLine">reading the served measurements…</div>
+
+<div id="ledger" style="display:none">
+  <div class="ledger-head">
+    <h2>The ledger</h2>
+    <span id="ledgerCount"></span>
+  </div>
+  <table>
+    <thead><tr>
+      <th data-k="rank">#</th>
+      <th data-k="place">Place</th>
+      <th></th>
+      <th data-k="code">Station</th>
+      <th data-k="db">dB · 4–14 Hz</th>
+      <th>Position</th>
+      <th data-k="p">vs itself</th>
+      <th>last 72h</th>
+    </tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div id="empty">no ground.json served yet — run the hourly workflow once, then refresh.<br><br><a href="./index.html" style="color:var(--slate)">back to the main map</a></div>
+
+<footer>measured by the earth itself · <a href="./index.html">the quiet map: ground truth</a> · refreshes every 5 minutes</footer>
+
+<script>
+/* ===== world stage (run-length dot grid, 1.5°) — geography only, carries no data ===== */
+const ROWS=[[4,[[72,3]]],[5,[[72,3]]],[6,[[71,4]]],[7,[[71,4]]],[8,[[71,4]]],[9,[[71,4],[231,2]]],[10,[[71,4],[232,2]]],[11,[[72,4],[217,2],[234,1]]],[12,[[72,5],[216,3],[235,1]]],[13,[[72,6],[236,2]]],[14,[[72,7],[216,3],[237,2]]],[15,[[73,8],[213,7],[236,1]]],[16,[[73,9],[212,8],[235,1]]],[17,[[73,11],[132,6],[197,4],[209,12]]],[18,[[72,14],[132,7],[197,10],[208,13]]],[19,[[72,14],[131,9],[197,25]]],[20,[[72,15],[131,10],[197,25]]],[21,[[73,14],[131,11],[196,26]]],[22,[[73,15],[130,12],[196,26]]],[23,[[73,16],[130,13],[150,1],[196,25]]],[24,[[73,18],[129,14],[150,2],[196,25]]],[25,[[73,19],[129,15],[149,3],[196,24]]],[26,[[73,19],[129,15],[149,4],[199,20]]],[27,[[73,19],[128,17],[149,4],[200,17]]],[28,[[72,21],[128,18],[149,4],[201,16]]],[29,[[71,22],[128,19],[150,4],[203,8],[214,3]]],[30,[[70,24],[128,19],[151,2],[204,1],[206,5],[214,2]]],[31,[[69,25],[129,18],[152,1],[207,4],[214,1]]],[32,[[69,26],[129,18]]],[33,[[68,28],[128,19],[219,1]]],[34,[[68,29],[128,19],[195,1],[216,3]]],[35,[[67,30],[128,19],[191,3],[212,6]]],[36,[[66,31],[128,19],[189,1],[200,1],[211,6]]],[37,[[66,28],[127,20],[188,2],[200,2],[208,8]]],[38,[[66,25],[127,20],[187,2],[193,5],[200,1],[207,6]]],[39,[[67,21],[126,22],[186,2],[193,5],[199,2]]],[40,[[67,19],[126,23],[185,2],[193,6],[200,2]]],[41,[[68,18],[126,24],[185,1],[188,1],[194,5]]],[42,[[68,18],[126,25],[184,1],[187,2],[195,4]]],[43,[[68,17],[114,5],[123,29],[187,1],[197,2]]],[44,[[69,14],[113,40],[173,1],[186,2],[202,2]]],[45,[[65,2],[69,12],[112,41],[173,1],[186,1],[202,1]]],[46,[[63,2],[70,10],[111,43],[171,1],[186,1],[189,2]]],[47,[[63,1],[71,4],[110,40],[153,1],[170,3],[185,2],[188,5]]],[48,[[62,2],[109,39],[149,1],[170,3],[185,8]]],[49,[[59,5],[109,38],[148,5],[169,5],[185,7],[200,1]]],[50,[[57,6],[109,37],[148,7],[169,6],[185,7],[200,1]]],[51,[[53,8],[109,37],[147,9],[169,6],[183,9],[200,1]]],[52,[[51,6],[59,3],[71,3],[109,36],[147,11],[169,7],[182,9]]],[53,[[50,6],[59,3],[67,3],[109,36],[146,13],[168,10],[182,9]]],[54,[[49,6],[63,5],[110,34],[146,13],[166,29]]],[55,[[49,6],[110,34],[145,14],[165,32],[200,1]]],[56,[[48,7],[111,32],[145,10],[157,1],[165,33]]],[57,[[45,1],[47,8],[65,2],[112,31],[144,9],[159,40]]],[58,[[44,1],[46,10],[65,1],[113,29],[143,10],[155,45]]],[59,[[43,14],[60,1],[64,2],[113,39],[153,48]]],[60,[[43,23],[113,88]]],[61,[[43,24],[114,16],[132,2],[143,58],[206,2]]],[62,[[41,27],[114,13],[144,56],[208,2]]],[63,[[39,31],[116,11],[144,56],[204,2],[208,5]]],[64,[[39,31],[115,3],[122,5],[139,15],[155,46],[204,2],[210,4]]],[65,[[38,32],[114,5],[130,1],[134,1],[138,15],[156,44],[204,2],[212,2]]],[66,[[37,34],[114,6],[130,1],[133,3],[137,15],[156,45],[202,4],[213,1]]],[67,[[37,34],[114,8],[129,2],[133,6],[140,4],[147,5],[155,52]]],[68,[[37,25],[65,8],[114,9],[127,2],[132,7],[147,5],[155,53],[214,2]]],[69,[[37,25],[66,9],[118,11],[130,9],[146,6],[156,53],[214,3]]],[70,[[37,40],[118,22],[141,11],[156,55]]],[71,[[37,23],[63,14],[117,96]]],[72,[[37,39],[81,3],[118,95]]],[73,[[36,42],[81,2],[116,1],[121,92]]],[74,[[35,46],[114,1],[116,5],[122,90],[224,1]]],[75,[[34,31],[67,14],[113,3],[117,3],[124,88],[223,4]]],[76,[[33,31],[67,13],[114,2],[117,2],[125,2],[133,79],[224,4]]],[77,[[13,1],[32,29],[68,11],[116,3],[126,1],[128,2],[134,79],[224,5]]],[78,[[14,3],[31,27],[68,11],[116,2],[128,3],[136,78],[223,8]]],[79,[[13,6],[28,30],[75,3],[124,8],[136,96]]],[80,[[10,12],[23,35],[89,5],[123,8],[134,101]]],[81,[[9,49],[87,9],[124,8],[134,104]]],[82,[[0,3],[9,48],[86,11],[106,3],[126,8],[135,105]]],[83,[[0,5],[8,49],[85,14],[104,7],[128,18],[147,93]]],[84,[[0,5],[10,46],[84,16],[129,18],[149,91]]],[85,[[0,3],[12,34],[52,3],[84,18],[129,16],[153,87]]],[86,[[0,1],[14,11],[84,19],[133,9],[161,79]]],[87,[[83,21],[164,54]]],[88,[[82,23],[157,1],[172,34]]],[89,[[81,25],[159,1],[178,17]]],[90,[[80,26],[183,10]]],[91,[[74,32],[189,1]]],[92,[[73,33],[128,6]]],[93,[[77,28]]],[94,[[81,22]]],[95,[[96,3]]]];
+const STEP=1.5, LON0=-180+STEP/2, LAT0=-60+STEP/2;
+
+let S=[];            // [{code,place,country,lat,lon,p,db,hist:[[end,db],..]}]
+let mn=0,mx=1;       // absolute dB range across reporting stations
+let generated=null;
+let sortK='db',sortDir=1;
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const elName=document.getElementById('placeName'),elMeta=document.getElementById('placeMeta'),
+      statusLine=document.getElementById('statusLine'),tbody=document.getElementById('tbody'),
+      ledger=document.getElementById('ledger'),empty=document.getElementById('empty');
+
+/* ===== canvas ===== */
+const cv=document.getElementById('map'),ctx=cv.getContext('2d');
+let W=0,H=0,DPR=1,mapX=0,mapY=0,mapW=0,mapH=0;
+const LATT=86,LATB=-60;
+function resize(){
+  DPR=Math.min(2,devicePixelRatio||1);
+  const r=cv.parentElement.getBoundingClientRect();
+  W=r.width;H=r.height;
+  cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
+  const ar=360/((LATT-LATB)*1.28);
+  mapW=Math.min(W-16,H*ar);mapH=mapW/ar;
+  if(mapH>H-40){mapH=H-40;mapW=mapH*ar}
+  mapX=(W-mapW)/2;mapY=Math.max((H-mapH)/2,8);
+}
+addEventListener('resize',resize);resize();
+const px=lon=>mapX+(lon+180)/360*mapW;
+const py=lat=>mapY+(LATT-lat)/(LATT-LATB)*mapH;
+const dots=[];
+for(const [r,runs] of ROWS){const lat=LAT0+r*STEP;
+  for(const [s,len] of runs)for(let k=0;k<len;k++)dots.push({lon:LON0+(s+k)*STEP,lat});}
+const cMoon=[242,235,214],cDusk=[62,76,102],cEmber=[196,84,42];
+function mix(a,b,t){return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t]}
+function colFor(t){ /* t: 0 = lowest abs power (cream), 1 = highest (ember) */
+  const q=1-t;
+  return q>0.55?mix(cDusk,cMoon,(q-0.55)/0.45):mix(cEmber,cDusk,q/0.55);
+}
+function sprite(rgb){
+  const s=document.createElement('canvas');s.width=s.height=64;
+  const x=s.getContext('2d');
+  const g=x.createRadialGradient(32,32,0,32,32,32);
+  g.addColorStop(0,`rgba(${rgb},0.85)`);g.addColorStop(0.35,`rgba(${rgb},0.28)`);g.addColorStop(1,`rgba(${rgb},0)`);
+  x.fillStyle=g;x.fillRect(0,0,64,64);
+  return s;
+}
+const sprMoon=sprite('242,235,214'),sprEmber=sprite('196,84,42');
+
+function draw(ts){
+  const t=ts/1000;
+  ctx.clearRect(0,0,W,H);
+  /* bare geography — dim, uninterpolated: this page is about the instruments, not the in-between */
+  ctx.fillStyle='rgba(90,106,128,0.13)';
+  const base=mapW/240*1.5;
+  for(const d of dots){ctx.beginPath();ctx.arc(px(d.lon),py(d.lat),base*0.42,0,6.283);ctx.fill()}
+  /* stations by absolute band power */
+  ctx.globalCompositeOperation='lighter';
+  for(const s of S){
+    const x=px(s.lon),y=py(s.lat),tt=(s.db-mn)/(mx-mn||1);
+    if(tt<0.18){const sz=base*7;ctx.globalAlpha=0.35*(1-tt/0.18)+0.1;ctx.drawImage(sprMoon,x-sz/2,y-sz/2,sz,sz)}
+    if(tt>0.82){const sz=base*6;ctx.globalAlpha=0.30*((tt-0.82)/0.18)+0.1;ctx.drawImage(sprEmber,x-sz/2,y-sz/2,sz,sz)}
+  }
+  ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+  for(const s of S){
+    const x=px(s.lon),y=py(s.lat),tt=(s.db-mn)/(mx-mn||1);
+    const col=colFor(tt);
+    ctx.fillStyle=`rgba(${col[0]|0},${col[1]|0},${col[2]|0},0.95)`;
+    ctx.beginPath();ctx.arc(x,y,2.6+2.6*(1-tt),0,6.283);ctx.fill();
+  }
+  /* reticle on the lowest absolute hum */
+  if(S.length){
+    const s0=S.reduce((a,b)=>a.db<b.db?a:b);
+    const x=px(s0.lon),y=py(s0.lat);
+    const pu=reduceMotion?0.5:(Math.sin(t*1.4)+1)/2;
+    const R=10+pu*2.5,rot=reduceMotion?0:t*0.35;
+    ctx.strokeStyle=`rgba(242,235,214,${0.85+0.15*pu})`;ctx.lineWidth=1.4;
+    ctx.beginPath();ctx.arc(x,y,R,0,6.283);ctx.stroke();
+    for(let i=0;i<4;i++){
+      const an=rot+i*Math.PI/2;
+      ctx.beginPath();
+      ctx.moveTo(x+Math.cos(an)*(R+3),y+Math.sin(an)*(R+3));
+      ctx.lineTo(x+Math.cos(an)*(R+9),y+Math.sin(an)*(R+9));
+      ctx.stroke();
+    }
+  }
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+/* ===== probe ===== */
+const probe=document.getElementById('probe');
+let probeTimer=null;
+cv.addEventListener('pointerdown',e=>{
+  const rect=cv.getBoundingClientRect();
+  const mxp=e.clientX-rect.left,myp=e.clientY-rect.top;
+  let bi=-1,bd=1e9;
+  for(let i=0;i<S.length;i++){
+    const d2=(px(S[i].lon)-mxp)**2+(py(S[i].lat)-myp)**2;
+    if(d2<bd){bd=d2;bi=i}
+  }
+  if(bd>45*45||bi<0)return;
+  const s=S[bi],rank=[...S].sort((a,b)=>a.db-b.db).findIndex(z=>z.code===s.code)+1;
+  probe.innerHTML=`<div class="p-name">${s.place}</div>
+    <div class="p-line">${s.country} · station ${s.code.split('.')[1]} (${s.code.split('.')[0]})</div>
+    <div class="p-score">${s.db.toFixed(1)} dB absolute · #${rank} of ${S.length} lowest · ${Math.round((1-s.p)*100)}% vs itself</div>`;
+  probe.style.left=Math.min(W-300,mxp+14)+'px';
+  probe.style.top=Math.max(8,myp-10)+'px';
+  probe.classList.add('on');
+  clearTimeout(probeTimer);
+  probeTimer=setTimeout(()=>probe.classList.remove('on'),4500);
+});
+
+/* ===== headline + table ===== */
+function headline(){
+  if(!S.length)return;
+  const s0=[...S].sort((a,b)=>a.db-b.db)[0];
+  elName.textContent=s0.place;
+  elMeta.innerHTML=`${s0.country} &nbsp;·&nbsp; station <b>${s0.code.split('.')[1]}</b> &nbsp;·&nbsp; <b>${s0.db.toFixed(1)} dB</b> in the 4–14 Hz human band — the lowest raw level on the network this hour`;
+  document.getElementById('dbMin').textContent=mn.toFixed(0)+' dB';
+  document.getElementById('dbMax').textContent=mx.toFixed(0)+' dB';
+}
+function renderStatus(){
+  const gtime=generated?`${String(generated.getUTCHours()).padStart(2,'0')}:${String(generated.getUTCMinutes()).padStart(2,'0')} UTC`:'—';
+  statusLine.innerHTML=`the ground reports · listening at <b>${S.length}</b> stations ✓ · as of <b>${gtime}</b> · absolute power, no baseline correction · hourly`;
+}
+function sortRows(){
+  const d=sortDir;
+  S.sort((a,b)=>{
+    if(sortK==='place')return d*a.place.localeCompare(b.place);
+    if(sortK==='code')return d*a.code.localeCompare(b.code);
+    if(sortK==='p')return d*(a.p-b.p);
+    return d*(a.db-b.db);
+  });
+}
+function renderTable(){
+  sortRows();
+  const byDb=[...S].sort((a,b)=>a.db-b.db).map(s=>s.code);
+  tbody.innerHTML='';
+  S.forEach((s,i)=>{
+    const rank=byDb.indexOf(s.code)+1;
+    const tt=(s.db-mn)/(mx-mn||1);
+    const tr=document.createElement('tr');
+    if(rank===1)tr.className='q1';
+    tr.innerHTML=`<td class="rank">${rank}</td>
+      <td class="place">${s.place}</td>
+      <td class="country">${s.country}</td>
+      <td class="code">${s.code.split('.')[1]}</td>
+      <td class="db">${s.db.toFixed(1)}</td>
+      <td class="pos"><div class="posbar"><i class="${tt>0.6?'loud':''}" style="left:${(tt*100).toFixed(1)}%"></i></div></td>
+      <td class="pctl">${Math.round((1-s.p)*100)}% still</td>
+      <td class="spark"><canvas width="90" height="22"></canvas></td>`;
+    tbody.appendChild(tr);
+    const c=tr.querySelector('canvas'),x=c.getContext('2d');
+    const h=s.hist||[];
+    if(h.length>3){
+      const vals=h.map(m=>m[1]),lo=Math.min(...vals),hi=Math.max(...vals),sp=Math.max(1,hi-lo);
+      x.beginPath();
+      h.forEach((m,k)=>{
+        const xx=k/(h.length-1)*86+2,yy=19-((m[1]-lo)/sp)*16;
+        k?x.lineTo(xx,yy):x.moveTo(xx,yy);
+      });
+      x.strokeStyle='rgba(139,155,176,0.55)';x.lineWidth=1;x.stroke();
+      x.fillStyle='#F2EBD6';x.beginPath();x.arc(88,19-((vals[vals.length-1]-lo)/sp)*16,1.8,0,6.283);x.fill();
+    }
+  });
+  document.getElementById('ledgerCount').textContent=`${S.length} stations · sorted by ${sortK==='db'?'absolute level':sortK==='p'?'own percentile':sortK} ${sortDir>0?'↑':'↓'}`;
+  document.querySelectorAll('th[data-k]').forEach(th=>{
+    th.classList.toggle('on',th.dataset.k===sortK||th.dataset.k==='rank'&&sortK==='db');
+  });
+}
+document.querySelectorAll('th[data-k]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const k=th.dataset.k==='rank'?'db':th.dataset.k;
+    if(sortK===k)sortDir*=-1;else{sortK=k;sortDir=1}
+    renderTable();
+  });
+});
+
+/* ===== load ===== */
+async function load(){
+  try{
+    const r=await fetch('./ground.json?t='+Math.floor(Date.now()/60000));
+    if(!r.ok)throw 0;
+    const j=await r.json();
+    if(!j.stations||!Object.keys(j.stations).length)throw 0;
+    S=Object.entries(j.stations).map(([code,s])=>({code,...s}));
+    const dbs=S.map(s=>s.db);
+    mn=Math.min(...dbs);mx=Math.max(...dbs);
+    generated=new Date(j.generated);
+    ledger.style.display='block';empty.style.display='none';
+    headline();renderStatus();renderTable();
+  }catch(e){
+    if(!S.length){
+      empty.style.display='block';
+      statusLine.textContent='no served measurements found';
+    }
+  }
+}
+load();
+setInterval(load,5*60*1000);
+</script>
+</body>
+</html>
