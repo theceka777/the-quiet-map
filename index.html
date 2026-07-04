@@ -117,11 +117,11 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
 
 <div class="brand">
   <div class="wordmark">The Quiet Map · <b>Ground Truth</b></div>
-  <div class="tagline">the earth's own account of where nothing is happening</div>
+  <div class="tagline">a live map of the world's stillest ground</div>
 </div>
 
 <header>
-  <div class="pitch">Every map ever drawn shows where things are happening. This one listens for where they are not.</div>
+  <div class="pitch">Every map shows where things are happening. This one listens for where they are not.</div>
   <div class="eyebrow" id="eyebrow">the stillest ground on earth right now is</div>
   <h1 class="place" id="placeName">&nbsp;</h1>
   <div class="meta" id="placeMeta"></div>
@@ -133,7 +133,7 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   <canvas id="map"></canvas>
   <div id="waiting">
     <div class="w-line" id="waitLine">reading the ground</div>
-    <div class="w-sub" id="waitSub">Looking for the latest served measurements…</div>
+    <div class="w-sub" id="waitSub">Finding the latest measurements…</div>
     <button class="btn" id="dialBtn" style="display:none">Dial the stations from this browser</button>
     <button class="btn" id="demoBtn" style="display:none">Preview with simulated signal</button>
   </div>
@@ -165,32 +165,32 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
     <div class="how-sub">no model · no estimates · only seismometers</div>
 
     <div class="how-lede">
-      <p>For a century we have buried instruments in the planet's crust to catch it misbehaving — earthquakes, eruptions, distant bombs. Point those same instruments the other way and they reveal something stranger: <b>the earth can feel us</b>. Traffic, trains, factories, footsteps — civilization registers as a faint, permanent tremor in the rock. When the 2020 lockdowns emptied the streets, seismometers around the world watched the hum of humanity measurably fall. It was the first time our species turned its volume down and the planet noticed.</p>
-      <p>This map borrows that discovery and inverts the news. Every hour it asks a hundred of those buried instruments the question no newsroom asks: where, right now, has the ground gone <b>stillest</b> — quieter than its own normal, for this hour, in this place? Not the emptiest spot on Earth. The one having its calmest hour. Somewhere, always, the world is holding its breath. This is its address.</p>
+      <p>For a century we buried instruments in the planet's crust to catch it misbehaving — earthquakes, eruptions, distant bombs. Pointed the other way, they reveal something stranger: <b>the earth can feel us</b>. Traffic, trains, footsteps — civilization is a faint, permanent tremor in the rock. When the 2020 lockdowns emptied the streets, seismometers watched humanity's hum fall. The one time we turned our volume down, the planet noticed.</p>
+      <p>This map inverts the news. Every hour, it asks a hundred buried instruments one question: where has the ground gone <b>stillest</b> — stiller than its own normal, for this hour, in this place? Not the emptiest spot on Earth. The one having its calmest hour. Somewhere, the world is holding its breath. This is its address.</p>
     </div>
 
     <div class="how-step"><div class="how-n">01</div><div>
       <h3>The instruments</h3>
-      <p>This edition of The Quiet Map is fed by <b>one source only: the ground itself</b>. Around 70 broadband seismometers of the Global Seismographic Network (IRIS/EarthScope) — from Kongsberg to Kiritimati, Ala-Archa to Ascension — each permanently recording the vibration of the earth beneath it.</p>
+      <p>One source: <b>the ground itself</b>. ~100 broadband seismometers of the Global Seismographic Network (IRIS/EarthScope) — Kongsberg to Kiritimati, Ala-Archa to Ascension — each permanently recording the vibration beneath it.</p>
     </div></div>
 
     <div class="how-step"><div class="how-n">02</div><div>
       <h3>The human band</h3>
-      <p>Cities hum. Traffic, trains, industry and footsteps register as continuous ground vibration, concentrated between <b>4 and 14 Hz</b> — the band seismologists call cultural noise. During the 2020 lockdowns this hum measurably fell across the planet. We read each station's hourly noise spectrum and take its energy in exactly that band.</p>
+      <p>Cities hum. Traffic, trains and footsteps register as continuous ground vibration between <b>4 and 14 Hz</b> — the band seismologists call cultural noise. Each hour, we read every station's spectrum and take its energy in exactly that band.</p>
     </div></div>
 
     <div class="how-step"><div class="how-n">03</div><div>
       <h3>Each place against itself</h3>
-      <p>Bedrock, sensor depth and geography make stations incomparable in absolute terms — so we never compare Tokyo's ground to a village's. The latest hour is ranked <b>against that same station's own recent history at the same hour of day</b>. Between instruments, the map interpolates from the nearest stations — and <b>fades honestly with distance</b>: land far from any seismometer stays dim, because we will not claim to hear further than we can. Oceans carry nothing.</p>
+      <p>Bedrock and sensor depth make stations incomparable in absolute terms — Tokyo's ground is never measured against a village's. Each hour is ranked <b>against that station's own history, at the same hour of day</b>. Between instruments the map interpolates, fading with distance — it claims to hear no further than it can. Oceans carry nothing.</p>
     </div></div>
 
     <div class="how-step"><div class="how-n">04</div><div>
       <h3>The title</h3>
-      <p>The stillest ground on Earth is the station currently furthest <b>below its own norm</b> — the place where the planet's surface is having its calmest hour. The loudest is the station furthest above: somewhere, the ground is being made to tremble more than usual, by weather, machines, crowds — or an earthquake, which you'll see as a rust ring from the USGS live feed.</p>
+      <p>The stillest ground on Earth is the station furthest <b>below its own norm</b> — the calmest hour anywhere on the planet. The loudest is furthest above: weather, machines, crowds — or an earthquake, drawn as a rust ring from the USGS live feed.</p>
     </div></div>
 
     <div class="how-note" id="howNote">
-      Everything shown is measurement, refreshed hourly. Where the network cannot be reached (some sandboxed previews block external requests), the map waits honestly — or offers a clearly-labelled simulation so the design can be experienced. Nothing simulated is ever presented as real.
+      Everything shown is measurement, refreshed hourly. Where the network is unreachable, the map waits — or offers a clearly-labelled simulation. Nothing simulated is ever presented as real.
     </div>
   </div>
 </div>
@@ -339,12 +339,12 @@ function renderStatus(){
     return;
   }
   const parts=[];
-  if(signals.ok)parts.push(`listening at <b>${signals.ok}</b> of ${STATIONS.length} stations ✓`);
-  if(servedAt)parts.push(`as of <b>${String(servedAt.getUTCHours()).padStart(2,'0')}:${String(servedAt.getUTCMinutes()).padStart(2,'0')} UTC</b>`);
-  if(signals.quakes)parts.push(`<b>${signals.quakes}</b> tremor${signals.quakes>1?'s':''} this hour ✓`);
-  if(loudest)parts.push(`loudest ground: <b>${loudest}</b>`);
+  if(signals.ok)parts.push(`<b>${signals.ok}</b> of ${STATIONS.length} stations`);
+  if(servedAt)parts.push(`<b>${String(servedAt.getUTCHours()).padStart(2,'0')}:${String(servedAt.getUTCMinutes()).padStart(2,'0')} UTC</b>`);
+  if(signals.quakes)parts.push(`<b>${signals.quakes}</b> tremor${signals.quakes>1?'s':''} this hour`);
+  if(loudest)parts.push(`loudest: <b>${loudest}</b>`);
   statusLine.innerHTML=parts.length
-    ?'the ground reports · '+parts.join(' &nbsp;·&nbsp; ')+' · 4–14 hz · hourly'
+    ?parts.join(' &nbsp;·&nbsp; ')+' &nbsp;·&nbsp; 4–14 hz · hourly'
     :(signals.tried>=STATIONS.length
       ?'the network is unreachable from this environment — nothing will be pretended'
       :`dialing the ground · ${signals.tried} of ${STATIONS.length} stations tried…`);
@@ -605,7 +605,7 @@ async function loadServed(quiet){
 }
 function showChoice(){
   waitLine.textContent='no served measurements found';
-  waitSub.textContent='This site has no ground.json beside it yet (the hourly backend worker creates one — see backend/). You can dial the 98 stations directly from this browser instead: slower, and the map assembles progressively.';
+  waitSub.textContent='No measurements served yet — the hourly worker creates them. You can dial the stations from this browser instead: slower, but it works.';
   dialBtn.style.display='inline-block';
   demoBtn.style.display='inline-block';
 }
