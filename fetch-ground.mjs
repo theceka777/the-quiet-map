@@ -58,7 +58,7 @@ const STATIONS = [
 ["II.HOPE.00.BHZ","Hope Point","South Georgia",-54.28,-36.49],["II.TRIS.00.BHZ","Tristan da Cunha","Atlantic",-37.07,-12.32],
 ];
 
-const BAND_LO = 4, BAND_HI = 14, HOURS = 72, CONC = 4, TIMEOUT = 25000;
+const BAND_LO = 4, BAND_HI = 14, HOURS = 168, CONC = 4, TIMEOUT = 40000;
 
 export function parsePsdXML(txt){
   const wins=[];
