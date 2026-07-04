@@ -23,12 +23,12 @@ body{background:var(--ink);color:var(--moon);font-family:'IBM Plex Mono',ui-mono
 .tagline{font-size:9px;letter-spacing:.12em;color:var(--slate-dim);margin-top:4px;text-transform:uppercase}
 header{text-align:center;padding:clamp(20px,3.4vh,38px) 20px clamp(8px,1.5vh,16px);flex:0 0 auto;position:relative;z-index:5}
 @media (max-width:960px){.brand{position:static;text-align:center;padding:12px 0 0}header{padding-top:10px}}
-.eyebrow{font-size:10px;letter-spacing:.42em;text-indent:.42em;color:var(--moon-soft);text-transform:uppercase;
+.eyebrow{font-size:clamp(13px,1.7vw,19px);letter-spacing:.3em;text-indent:.3em;color:rgba(242,235,214,.82);text-transform:uppercase;
   display:flex;align-items:center;justify-content:center;gap:18px}
 .eyebrow::before,.eyebrow::after{content:"";height:1px;width:clamp(24px,6vw,72px);background:linear-gradient(90deg,transparent,rgba(139,155,176,.4))}
 .eyebrow::after{background:linear-gradient(90deg,rgba(139,155,176,.4),transparent)}
 h1.place{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;
-  font-size:clamp(30px,5.4vw,62px);line-height:1.0;color:var(--moon);margin-top:5px;
+  font-size:clamp(28px,4.8vw,56px);line-height:1.0;color:var(--moon);margin-top:7px;
   text-shadow:0 0 46px rgba(242,235,214,.18);transition:opacity .5s ease;min-height:1.05em}
 h1.place.dim{opacity:.15}
 .meta{margin-top:7px;font-size:11px;letter-spacing:.12em;color:var(--slate)}
