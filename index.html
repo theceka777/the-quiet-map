@@ -35,8 +35,9 @@ h1.place.dim{opacity:.15}
 .meta b{color:var(--moon);font-weight:500}
 .counter{margin-top:4px;font-size:10px;letter-spacing:.1em;color:var(--slate-dim)}
 .counter b{color:#C97847;font-weight:400}
-.pitch{margin:10px auto 0;max-width:720px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;
-  font-size:clamp(13px,1.5vw,17px);line-height:1.5;color:var(--moon-soft);letter-spacing:.02em}
+.pitch{margin:0 auto 14px;max-width:840px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;
+  font-size:clamp(16px,2.1vw,23px);line-height:1.45;color:rgba(242,235,214,.92);letter-spacing:.02em;
+  text-shadow:0 0 30px rgba(242,235,214,.12)}
 @media (max-height:720px){.pitch{display:none}}
 #stage{flex:1 1 auto;position:relative;min-height:0}
 canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -120,11 +121,11 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
 </div>
 
 <header>
+  <div class="pitch">Every map ever drawn shows where things are happening. This one listens for where they are not.</div>
   <div class="eyebrow" id="eyebrow">the stillest ground on earth right now is</div>
   <h1 class="place" id="placeName">&nbsp;</h1>
   <div class="meta" id="placeMeta"></div>
   <div class="counter" id="loudLine"></div>
-  <div class="pitch">Every map ever drawn shows where things are happening. This one listens for where they are not.</div>
 </header>
 
 <div id="stage">
@@ -307,7 +308,7 @@ function parseMustangXML(txt){
 const elName=document.getElementById('placeName'),elMeta=document.getElementById('placeMeta'),
       elLoud=document.getElementById('loudLine'),statusLine=document.getElementById('statusLine'),
       sparkLabel=document.getElementById('sparkLabel');
-let lastKey='';
+let lastKey='',loudest='';
 function updateHeadline(){
   let bi=-1,bp=2,wi=-1,wp=-1;
   for(const k in ground){
@@ -318,14 +319,15 @@ function updateHeadline(){
   quietIdx=bi;
   if(bi<0)return;
   const b=STATIONS[bi],w=STATIONS[wi];
+  loudest=wi>=0&&wi!==bi?`${w[1]}, ${w[2]}`:'';
   const still=Math.round((1-bp)*100), key=b[1]+still+(simulated?'s':'');
   if(key!==lastKey){
     lastKey=key;
     elName.classList.add('dim');
     setTimeout(()=>{
       elName.textContent=b[1];
-      elMeta.innerHTML=`${b[2]} &nbsp;·&nbsp; station <b>${b[0].split('.')[1]}</b> &nbsp;·&nbsp; stiller than <b>${still}%</b> of its usual hours, adjusted for time of day`;
-      elLoud.innerHTML=wi>=0&&wi!==bi?`meanwhile, the ground trembles most in: <b>${w[1]}, ${w[2]}</b> — ${Math.round(wp*100)}th percentile of its own hum`:'';
+      elMeta.innerHTML=`${b[2]} &nbsp;·&nbsp; stiller than <b>${still}%</b> of its usual hours`;
+      elLoud.innerHTML='';
       elName.classList.remove('dim');
       drawSpark();
     },reduceMotion?0:300);
@@ -340,8 +342,9 @@ function renderStatus(){
   if(signals.ok)parts.push(`listening at <b>${signals.ok}</b> of ${STATIONS.length} stations ✓`);
   if(servedAt)parts.push(`as of <b>${String(servedAt.getUTCHours()).padStart(2,'0')}:${String(servedAt.getUTCMinutes()).padStart(2,'0')} UTC</b>`);
   if(signals.quakes)parts.push(`<b>${signals.quakes}</b> tremor${signals.quakes>1?'s':''} this hour ✓`);
+  if(loudest)parts.push(`loudest ground: <b>${loudest}</b>`);
   statusLine.innerHTML=parts.length
-    ?'the ground reports · '+parts.join(' &nbsp;·&nbsp; ')+' · 4–14 hz human band · hourly'
+    ?'the ground reports · '+parts.join(' &nbsp;·&nbsp; ')+' · 4–14 hz · hourly'
     :(signals.tried>=STATIONS.length
       ?'the network is unreachable from this environment — nothing will be pretended'
       :`dialing the ground · ${signals.tried} of ${STATIONS.length} stations tried…`);
