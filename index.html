@@ -37,7 +37,7 @@ body{background:var(--ink);color:var(--moon);font-family:'IBM Plex Mono',ui-mono
 .help:hover .tip,.help:focus .tip{opacity:1}
 header{text-align:center;padding:clamp(20px,3.4vh,38px) 20px clamp(8px,1.5vh,16px);flex:0 0 auto;position:relative;z-index:5}
 @media (max-width:960px){.brand{position:static;text-align:center;padding:12px 0 0}header{padding-top:10px}.howtop{position:static;display:block;margin:10px auto 0}}
-.kicker{font-size:clamp(11px,1.2vw,13px);letter-spacing:.34em;text-indent:.34em;color:var(--slate-dim);text-transform:uppercase;margin-bottom:12px}
+.kicker{font-size:clamp(10px,1.1vw,12px);letter-spacing:.34em;text-indent:.34em;color:var(--slate-dim);text-transform:uppercase;margin:16px 0 2px}
 .eyebrow{font-size:clamp(13px,1.6vw,18px);letter-spacing:.3em;text-indent:.3em;color:rgba(242,235,214,.82);text-transform:uppercase;
   display:flex;align-items:center;justify-content:center;gap:18px}
 .eyebrow::before,.eyebrow::after{content:"";height:1px;width:clamp(24px,6vw,72px);background:linear-gradient(90deg,transparent,rgba(139,155,176,.4))}
@@ -97,6 +97,8 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   color:var(--slate);background:none;border:1px solid var(--hair);padding:8px 14px;cursor:pointer;white-space:nowrap;
   transition:color .25s,border-color .25s}
 .btn:hover,.btn:focus-visible{color:var(--moon);border-color:rgba(242,235,214,.4);outline:none}
+select.btn{appearance:none;-webkit-appearance:none;background:rgba(5,7,13,.72);max-width:220px;text-overflow:ellipsis;cursor:pointer}
+select.btn option{background:#070B14;color:var(--moon);text-transform:none;letter-spacing:normal}
 #how{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;
   background:rgba(4,6,11,.86);backdrop-filter:blur(8px)}
 #how.open{display:flex}
@@ -116,6 +118,14 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
 .how-note{margin-top:22px;padding-top:18px;border-top:1px solid var(--hair);font-size:10px;line-height:1.8;color:var(--slate-dim)}
 .how-close{position:absolute;top:14px;right:14px;border:none;background:none;color:var(--slate);font-size:16px;cursor:pointer;padding:6px 10px}
 .how-close:hover{color:var(--moon)}
+#keep{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;
+  background:rgba(4,6,11,.86);backdrop-filter:blur(8px)}
+#keep.open{display:flex}
+.keep-card{width:min(440px,92vw);max-height:92vh;overflow:auto;border:1px solid var(--hair);background:#070B14;
+  padding:22px;text-align:center;position:relative}
+.keep-card h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:26px;color:var(--moon)}
+.keep-card img{width:100%;height:auto;border:1px solid var(--hair);margin:14px 0;display:block}
+.keep-card .btn{display:inline-block;text-decoration:none}
 @media (max-width:640px){
   .horizon{flex-wrap:wrap}.btn{padding:7px 9px;letter-spacing:.16em}
   .scale{left:50%;transform:translateX(-50%);bottom:8px;gap:8px;padding:8px 12px}.s-bar{width:90px}
@@ -132,8 +142,8 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
 <button class="btn howtop" id="howBtn">How it works</button>
 
 <header>
-  <div class="kicker">human noise, measured through seismic data</div>
-  <div class="eyebrow" id="eyebrow">the stillest place on earth right now is</div>
+  <div class="eyebrow" id="eyebrow">human noise, measured through seismic data</div>
+  <div class="kicker">the stillest place on earth right now</div>
   <div class="name-row">
     <h1 class="place" id="placeName">&nbsp;</h1>
     <span class="help" id="helpBtn" tabindex="0" aria-label="What is this?">?<span class="tip">Seismometers feel the ground hum with human activity: traffic, trains, footsteps in the rock. This is the place currently furthest below its own usual hum, for this hour of the day.</span></span>
@@ -166,11 +176,20 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
       <span class="spark-label" id="sparkLabel"></span>
       <canvas id="spark"></canvas>
     </div>
-    <button class="btn" id="youBtn">The ground near you</button>
+    <select class="btn sel" id="youSel"><option value="">the ground near you…</option></select>
     <button class="btn" id="refreshBtn">Ask the ground again</button>
     <button class="btn" id="saveBtn">Keep this moment</button>
   </div>
 </footer>
+
+<div id="keep" role="dialog" aria-modal="true" aria-label="Keep this moment">
+  <div class="keep-card">
+    <button class="how-close" id="keepClose" aria-label="Close">✕</button>
+    <h2>Keep this moment</h2>
+    <img id="keepImg" alt="Share card of the current stillest place">
+    <a class="btn" id="keepDl" href="#">Download PNG</a>
+  </div>
+</div>
 
 <div id="how" role="dialog" aria-modal="true" aria-label="How the stillness is measured">
   <div class="how-card">
@@ -771,6 +790,7 @@ document.getElementById('refreshBtn').addEventListener('click',async()=>{
 (async()=>{
   const ok=await loadServed(false);
   fetchQuakes();
+  guessYou();
   if(ok)setInterval(()=>loadServed(true),5*60*1000);      // served: quiet refresh, single settle
 })();
 setInterval(()=>{if(!simulated&&dialing&&!servedAt){ground={};signals.ok=0;signals.tried=0;fetchAll()}},60*60*1000);
@@ -784,42 +804,53 @@ function hav(a1,o1,a2,o2){
   const s=Math.sin((a2-a1)*r/2)**2+Math.cos(a1*r)*Math.cos(a2*r)*Math.sin((o2-o1)*r/2)**2;
   return 2*R*Math.asin(Math.sqrt(s));
 }
-document.getElementById('youBtn').addEventListener('click',()=>{
-  const fail=msg=>{
-    probe.innerHTML=`<div class="p-line">${msg}</div>`;
-    probe.style.left=(W/2-130)+'px';probe.style.top='16px';
-    probe.classList.add('on');
-    clearTimeout(probeTimer);probeTimer=setTimeout(()=>probe.classList.remove('on'),5000);
-  };
-  if(!navigator.geolocation){fail('location unavailable · tap any station triangle instead');return}
-  navigator.geolocation.getCurrentPosition(pos=>{
-    const la=pos.coords.latitude,lo=pos.coords.longitude;
+const youSel=document.getElementById('youSel');
+(function fillYouSel(){
+  const idxs=STATIONS.map((s,i)=>i).sort((a,b)=>STATIONS[a][1].localeCompare(STATIONS[b][1]));
+  for(const i of idxs){
+    const o=document.createElement('option');
+    o.value=i;o.textContent=`${STATIONS[i][1]}, ${STATIONS[i][2]}`;
+    youSel.appendChild(o);
+  }
+})();
+function showYou(bi,dKm,auto){
+  yourIdx=bi;youSel.value=String(bi);
+  const st=STATIONS[bi],g=ground[bi];
+  if(auto&&g===undefined)return;
+  probe.innerHTML=`<div class="p-name">${st[1]}, ${st[2]}</div>
+    <div class="p-line">the ground near you${dKm!=null?` · ${Math.round(dKm)} km away`:''}</div>
+    <div class="p-score">${g!==undefined?`stiller than ${Math.round((1-g.p)*100)}% of its usual hours${simulated?' · SIMULATED':''}`:'not reporting this hour'}</div>`;
+  probe.style.left=Math.min(W-300,px(st[4])+14)+'px';
+  probe.style.top=Math.max(8,py(st[3])-10)+'px';
+  probe.classList.add('on');
+  clearTimeout(probeTimer);
+  probeTimer=setTimeout(()=>probe.classList.remove('on'),auto?6000:9000);
+}
+youSel.addEventListener('change',()=>{if(youSel.value!=='')showYou(+youSel.value,null,false)});
+async function guessYou(){
+  /* a quiet guess from network location; the list is there to correct it */
+  try{
+    const r=await fetchT('https://ipwho.is/',6000);
+    const g=await r.json();
+    if(!g||!g.success)return;
     let bi=-1,bd=1e18;
     for(let i=0;i<STATIONS.length;i++){
-      if(ground[i]===undefined)continue;
-      const dKm=hav(la,lo,STATIONS[i][3],STATIONS[i][4]);
-      if(dKm<bd){bd=dKm;bi=i}
+      const d=hav(g.latitude,g.longitude,STATIONS[i][3],STATIONS[i][4]);
+      if(d<bd){bd=d;bi=i}
     }
-    if(bi<0){fail('no stations reporting yet');return}
-    yourIdx=bi;
-    const st=STATIONS[bi],g=ground[bi];
-    probe.innerHTML=`<div class="p-name">${st[1]}, ${st[2]}</div>
-      <div class="p-line">the ground nearest you · ${Math.round(bd)} km away</div>
-      <div class="p-score">stiller than ${Math.round((1-g.p)*100)}% of its usual hours${simulated?' · SIMULATED':''}</div>`;
-    probe.style.left=Math.min(W-300,px(st[4])+14)+'px';
-    probe.style.top=Math.max(8,py(st[3])-10)+'px';
-    probe.classList.add('on');
-    clearTimeout(probeTimer);
-    probeTimer=setTimeout(()=>probe.classList.remove('on'),9000);
-  },()=>fail('location not shared · tap any station triangle instead'));
-});
+    if(bi>=0)showYou(bi,bd,true);
+  }catch(e){}
+}
 
 /* ===== how overlay ===== */
 const how=document.getElementById('how');
 document.getElementById('howBtn').addEventListener('click',()=>how.classList.add('open'));
 document.getElementById('howClose').addEventListener('click',()=>how.classList.remove('open'));
 how.addEventListener('click',e=>{if(e.target===how)how.classList.remove('open')});
-addEventListener('keydown',e=>{if(e.key==='Escape')how.classList.remove('open')});
+const keepEl=document.getElementById('keep');
+document.getElementById('keepClose').addEventListener('click',()=>keepEl.classList.remove('open'));
+keepEl.addEventListener('click',e=>{if(e.target===keepEl)keepEl.classList.remove('open')});
+addEventListener('keydown',e=>{if(e.key==='Escape'){how.classList.remove('open');keepEl.classList.remove('open')}});
 
 /* ===== keep this moment ===== */
 document.getElementById('saveBtn').addEventListener('click',async()=>{
@@ -855,27 +886,31 @@ document.getElementById('saveBtn').addEventListener('click',async()=>{
   x.strokeStyle='rgba(242,235,214,0.35)';x.beginPath();x.arc(bx,by,30,0,6.283);x.stroke();
   x.fillStyle='#F2EBD6';x.beginPath();x.arc(bx,by,4,0,6.283);x.fill();
   x.textAlign='center';
-  x.fillStyle='#8B9BB0';x.font='500 22px "IBM Plex Mono"';
-  x.fillText('T H E   Q U I E T   M A P  ·  G R O U N D   T R U T H',540,110);
+  x.fillStyle='rgba(242,235,214,0.85)';x.font='500 24px "IBM Plex Mono"';
+  x.fillText('HUMAN NOISE, MEASURED THROUGH SEISMIC DATA',540,110);
   x.fillStyle='#5A6A80';x.font='400 19px "IBM Plex Mono"';
   x.fillText('THE STILLEST PLACE ON EARTH RIGHT NOW',540,180);
-  x.fillStyle='#F2EBD6';x.font='italic 300 92px "Cormorant Garamond", serif';
-  if(x.measureText(st[1]).width>960)x.font='italic 300 68px "Cormorant Garamond", serif';
+  const cname=`${st[1]}, ${st[2]}`;
+  x.fillStyle='#F2EBD6';x.font='italic 300 84px "Cormorant Garamond", serif';
+  if(x.measureText(cname).width>980)x.font='italic 300 60px "Cormorant Garamond", serif';
   x.shadowColor='rgba(242,235,214,0.25)';x.shadowBlur=40;
-  x.fillText(st[1],540,300);
+  x.fillText(cname,540,300);
   x.shadowBlur=0;
   x.fillStyle='#8B9BB0';x.font='400 24px "IBM Plex Mono"';
-  x.fillText(`${st[2]}  ·  station ${st[0].split('.')[1]}  ·  stiller than ${still}% of its usual hours`,540,360);
+  x.fillText(`stiller than ${still}% of its usual hours`,540,360);
   const dstr=new Date().toUTCString().slice(0,22)+' UTC';
   x.fillStyle='#5A6A80';x.font='400 20px "IBM Plex Mono"';
   x.fillText(`${Math.abs(st[3]).toFixed(2)}°${st[3]>=0?'N':'S'}  ${Math.abs(st[4]).toFixed(2)}°${st[4]>=0?'E':'W'}  ·  4–14 Hz`,540,1230);
   x.fillText(dstr,540,1268);
   x.strokeStyle='rgba(139,155,176,0.25)';x.beginPath();x.moveTo(340,1200);x.lineTo(740,1200);x.stroke();
   x.fillStyle='#3E4C66';x.font='400 17px "IBM Plex Mono"';
-  x.fillText(simulated?'SIMULATED SIGNAL · DESIGN PREVIEW ONLY':'measured by the earth itself',540,1316);
-  const a=document.createElement('a');
-  a.download=`ground-truth-${st[1].toLowerCase().replace(/[^a-z]/g,'')}-${Date.now()}.png`;
-  a.href=cvs.toDataURL('image/png');a.click();
+  x.fillText(simulated?'SIMULATED SIGNAL · DESIGN PREVIEW ONLY':'THE QUIET MAP · measured by the earth itself',540,1316);
+  const url=cvs.toDataURL('image/png');
+  document.getElementById('keepImg').src=url;
+  const dl=document.getElementById('keepDl');
+  dl.href=url;
+  dl.download=`the-quiet-map-${st[1].toLowerCase().replace(/[^a-z]/g,'')}-${Date.now()}.png`;
+  document.getElementById('keep').classList.add('open');
 });
 </script>
 </body>

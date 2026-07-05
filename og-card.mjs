@@ -32,11 +32,11 @@ for (let i = 0; i < 130; i++) {
 }
 
 x.textAlign = 'center';
-x.fillStyle = '#5A6A80'; x.font = '18px PlexMono, monospace';
-x.fillText('HUMAN NOISE, MEASURED THROUGH SEISMIC DATA', W / 2, 118);
-
 x.fillStyle = 'rgba(242,235,214,0.85)'; x.font = '26px PlexMono, monospace';
-x.fillText('THE STILLEST PLACE ON EARTH RIGHT NOW IS', W / 2, 188);
+x.fillText('HUMAN NOISE, MEASURED THROUGH SEISMIC DATA', W / 2, 122);
+
+x.fillStyle = '#5A6A80'; x.font = '18px PlexMono, monospace';
+x.fillText('THE STILLEST PLACE ON EARTH RIGHT NOW IS', W / 2, 186);
 
 const name = `${best.place}, ${best.country}`;
 x.fillStyle = '#F2EBD6';
