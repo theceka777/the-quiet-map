@@ -140,6 +140,28 @@ async function main(){
   };
   const fs=await import('fs');
   fs.writeFileSync(new URL('./ground.json',import.meta.url),JSON.stringify(out));
+  /* archive: one small file per UTC day, topped up hourly.
+     builds the multi-week baseline the pulse detector needs (day-of-week norms). */
+  const arch={};
+  for(const code in stations){
+    for(const [end,db] of stations[code].hist){
+      const day=new Date(end).toISOString().slice(0,10);
+      ((arch[day]??={})[code]??=[]).push([end,db]);
+    }
+  }
+  fs.mkdirSync(new URL('./archive/',import.meta.url),{recursive:true});
+  for(const day in arch){
+    const p=new URL(`./archive/${day}.json`,import.meta.url);
+    let cur={};
+    try{cur=JSON.parse(fs.readFileSync(p,'utf8'))}catch(e){}
+    for(const code in arch[day]){
+      const seen=new Set((cur[code]??=[]).map(e=>e[0]));
+      for(const e of arch[day][code])if(!seen.has(e[0]))cur[code].push(e);
+      cur[code].sort((a,b)=>a[0]-b[0]);
+    }
+    fs.writeFileSync(p,JSON.stringify(cur));
+  }
+  console.log(`archive: ${Object.keys(arch).length} day files touched`);
   console.log(`\nwrote ground.json · ${out.ok} ok · ${out.failed} failed · ${out.generated}`);
   if(!out.ok)process.exit(1);
 }
