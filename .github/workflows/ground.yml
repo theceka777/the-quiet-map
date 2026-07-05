@@ -22,11 +22,20 @@ jobs:
           node-version: 20
       - name: Read the ground
         run: node fetch-ground.mjs
+      - name: Render share card
+        run: |
+          npm install --no-save canvas >/dev/null 2>&1 || true
+          mkdir -p fonts
+          curl -fsSL -o fonts/CormorantGaramond-Italic.ttf "https://github.com/google/fonts/raw/main/ofl/cormorantgaramond/CormorantGaramond-Italic%5Bwght%5D.ttf" || true
+          curl -fsSL -o fonts/IBMPlexMono-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/ibmplexmono/IBMPlexMono-Regular.ttf" || true
+          node og-card.mjs || echo "og card failed, continuing without it"
       - name: Commit ground.json
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add ground.json
+          git add archive/ 2>/dev/null || true
+          [ -f og.png ] && git add og.png || true
           git diff --cached --quiet || git commit -m "ground: hourly measurement"
           git pull --rebase origin main
           git push
