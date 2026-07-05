@@ -131,10 +131,10 @@ select.btn option{background:#070B14;color:var(--moon);text-transform:none;lette
 .keep-card img{width:100%;height:auto;border:1px solid var(--hair);margin:14px 0;display:block}
 .keep-card .btn{display:inline-block;text-decoration:none}
 @media (max-width:640px){
-  /* header: stack everything, center everything */
-  .brand{padding-top:10px}
-  .howtop{margin-top:8px}
-  header{padding:8px 12px clamp(6px,1.2vh,12px)}
+  /* header: brand and help in the corners, everything else stacked + centered */
+  .brand{position:absolute;top:12px;left:14px;text-align:left;padding:0}
+  .howtop{position:absolute;top:8px;right:12px;margin:0;display:inline-block}
+  header{padding:40px 12px clamp(6px,1.2vh,12px)}
   .eyebrow{font-size:9px;letter-spacing:.18em;text-indent:.18em;gap:8px;line-height:1.7;padding:0 2px}
   .eyebrow::before,.eyebrow::after{width:14px;flex:0 0 auto}
   .name-row{flex-direction:column;align-items:center;gap:3px;margin-top:10px}
