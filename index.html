@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>The Quiet Map: Ground Truth · human noise, measured through seismic data</title>
 <meta property="og:title" content="The Quiet Map: Ground Truth">
-<meta property="og:description" content="Human noise, measured through seismic data. A live map of the stillest place on earth, refreshed hourly.">
+<meta property="og:description" content="Human noise, measured through seismic data. A live map of the quietest place on earth, refreshed hourly.">
 <meta property="og:image" content="https://theceka777.github.io/the-quiet-map/og.png">
 <meta property="og:url" content="https://theceka777.github.io/the-quiet-map/">
 <meta name="twitter:card" content="summary_large_image">
@@ -169,7 +169,7 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
 <header>
   <div class="eyebrow" id="eyebrow">human noise, measured through seismic data</div>
   <div class="name-row">
-    <span class="kicker">the stillest<br>place on earth<br>right now:</span>
+    <span class="kicker">the quietest<br>place on earth<br>right now:</span>
     <div class="name-col">
       <div class="name-line">
         <h1 class="place" id="placeName">&nbsp;</h1>
@@ -192,8 +192,8 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
     <button class="btn" id="demoBtn" style="display:none">Preview with simulated signal</button>
   </div>
   <div id="probe"></div>
-  <div class="scale" aria-label="Legend: glowing stations mean still ground, ember stations mean humming ground">
-    <span class="s-cap silence"><span class="dotp q"></span>still</span>
+  <div class="scale" aria-label="Legend: glowing stations mean quiet ground, ember stations mean humming ground">
+    <span class="s-cap silence"><span class="dotp q"></span>quiet</span>
     <div class="s-bar"></div>
     <span class="s-cap noise">humming<span class="dotp l"></span></span>
   </div>
@@ -215,20 +215,20 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   <div class="keep-card">
     <button class="how-close" id="keepClose" aria-label="Close">✕</button>
     <h2>Keep this moment</h2>
-    <img id="keepImg" alt="Share card of the current stillest place">
+    <img id="keepImg" alt="Share card of the current quietest place">
     <a class="btn" id="keepDl" href="#">Download PNG</a>
   </div>
 </div>
 
-<div id="how" role="dialog" aria-modal="true" aria-label="How the stillness is measured">
+<div id="how" role="dialog" aria-modal="true" aria-label="How the quiet is measured">
   <div class="how-card">
     <button class="how-close" id="howClose" aria-label="Close">✕</button>
-    <h2>How the stillness is measured</h2>
+    <h2>How the quiet is measured</h2>
     <div class="how-sub">a hundred seismometers, listening around the clock · no model · no estimates</div>
 
     <div class="how-lede">
       <p>For a century we buried instruments in the planet's crust to catch it misbehaving: earthquakes, eruptions, distant bombs. Pointed the other way, they reveal something stranger: <b>the earth can feel us</b>. Traffic, trains, footsteps: civilization is a faint, permanent tremor in the rock. When the 2020 lockdowns emptied the streets, seismometers watched humanity's hum fall. The one time we turned our volume down, the planet noticed.</p>
-      <p>This map inverts the news. Every hour, it asks a hundred buried instruments one question: where has the ground gone <b>stillest</b>, stiller than its own normal, for this hour, in this place? Not the emptiest spot on Earth. The one having its calmest hour. Somewhere, the world is holding its breath. This is its address.</p>
+      <p>This map inverts the news. Every hour, it asks a hundred buried instruments one question: where has the ground gone <b>quietest</b>, quieter than its own normal, for this hour, in this place? Not the emptiest spot on Earth. The one having its calmest hour. Somewhere, the world is holding its breath. This is its address.</p>
     </div>
 
     <div class="how-step"><div class="how-n">01</div><div>
@@ -248,7 +248,7 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
 
     <div class="how-step"><div class="how-n">04</div><div>
       <h3>The title</h3>
-      <p>The stillest ground on Earth is the station furthest <b>below its own norm</b>: the calmest hour anywhere on the planet. The loudest is furthest above: weather, machines, crowds, or an earthquake, drawn as a rust ring from the USGS live feed. Remote ocean outposts (mid-Pacific atolls, lone Atlantic rocks) report and paint the map, but never take the headline: surf, not people, sets their hum.</p>
+      <p>The quietest place on Earth is the station furthest <b>below its own norm</b>: the calmest hour anywhere on the planet. The loudest is furthest above: weather, machines, crowds, or an earthquake, drawn as a rust ring from the USGS live feed. Remote ocean outposts (mid-Pacific atolls, lone Atlantic rocks) report and paint the map, but never take the headline: surf, not people, sets their hum.</p>
     </div></div>
 
     <div class="how-note" id="howNote">
@@ -397,7 +397,7 @@ function updateHeadline(){
     setTimeout(()=>{
       elName.textContent=b[1]+', '+b[2];
       document.getElementById('helpBtn').style.visibility='visible';
-      elMeta.innerHTML=`stiller than <b>${still}%</b> of its usual hours`;
+      elMeta.innerHTML=`quieter than <b>${still}%</b> of its usual hours`;
       elLoud.innerHTML='';
       elName.classList.remove('dim');
       drawSpark();
@@ -621,7 +621,7 @@ cv.addEventListener('pointerdown',e=>{
   if(bd>45*45)return;
   const st=STATIONS[bi],g=ground[bi];
   const gl=g!==undefined
-    ?`<div class="p-score">stiller than ${Math.round((1-g.p)*100)}% of its usual hours · ${g.db.toFixed(1)} dB (4–14 hz)${simulated?' · SIMULATED':''}</div>`
+    ?`<div class="p-score">quieter than ${Math.round((1-g.p)*100)}% of its usual hours · ${g.db.toFixed(1)} dB (4–14 hz)${simulated?' · SIMULATED':''}</div>`
     :`<div class="p-score">not reporting from this environment</div>`;
   probe.innerHTML=`<div class="p-name">${st[1]}</div>
     <div class="p-line">${st[2]} · station ${st[0].split('.')[1]} (${st[0].split('.')[0]})</div>${gl}`;
@@ -864,7 +864,7 @@ document.getElementById('saveBtn').addEventListener('click',async()=>{
   x.fillStyle='rgba(242,235,214,0.85)';x.font='500 24px "IBM Plex Mono"';
   x.fillText('HUMAN NOISE, MEASURED THROUGH SEISMIC DATA',540,110);
   x.fillStyle='#5A6A80';x.font='400 19px "IBM Plex Mono"';
-  x.fillText('THE STILLEST PLACE ON EARTH RIGHT NOW',540,180);
+  x.fillText('THE QUIETEST PLACE ON EARTH RIGHT NOW',540,180);
   const cname=`${st[1]}, ${st[2]}`;
   x.fillStyle='#F2EBD6';x.font='italic 300 84px "Cormorant Garamond", serif';
   if(x.measureText(cname).width>980)x.font='italic 300 60px "Cormorant Garamond", serif';
@@ -872,7 +872,7 @@ document.getElementById('saveBtn').addEventListener('click',async()=>{
   x.fillText(cname,540,300);
   x.shadowBlur=0;
   x.fillStyle='#8B9BB0';x.font='400 24px "IBM Plex Mono"';
-  x.fillText(`stiller than ${still}% of its usual hours`,540,360);
+  x.fillText(`quieter than ${still}% of its usual hours`,540,360);
   const dstr=new Date().toUTCString().slice(0,22)+' UTC';
   x.fillStyle='#5A6A80';x.font='400 20px "IBM Plex Mono"';
   x.fillText(`${Math.abs(st[3]).toFixed(2)}°${st[3]>=0?'N':'S'}  ${Math.abs(st[4]).toFixed(2)}°${st[4]>=0?'E':'W'}  ·  4–14 Hz`,540,1230);

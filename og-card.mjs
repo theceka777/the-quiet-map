@@ -36,7 +36,7 @@ x.fillStyle = 'rgba(242,235,214,0.85)'; x.font = '26px PlexMono, monospace';
 x.fillText('HUMAN NOISE, MEASURED THROUGH SEISMIC DATA', W / 2, 122);
 
 x.fillStyle = '#5A6A80'; x.font = '18px PlexMono, monospace';
-x.fillText('THE STILLEST PLACE ON EARTH RIGHT NOW IS', W / 2, 186);
+x.fillText('THE QUIETEST PLACE ON EARTH RIGHT NOW IS', W / 2, 186);
 
 const name = `${best.place}, ${best.country}`;
 x.fillStyle = '#F2EBD6';
@@ -47,7 +47,7 @@ x.fillText(name, W / 2, 312);
 x.shadowBlur = 0;
 
 x.fillStyle = '#8B9BB0'; x.font = '22px PlexMono, monospace';
-x.fillText(`stiller than ${still}% of its usual hours`, W / 2, 372);
+x.fillText(`quieter than ${still}% of its usual hours`, W / 2, 372);
 
 const hist = best.hist || [];
 if (hist.length > 4) {
