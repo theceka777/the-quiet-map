@@ -101,8 +101,6 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   color:var(--slate);background:none;border:1px solid var(--hair);padding:8px 14px;cursor:pointer;white-space:nowrap;
   transition:color .25s,border-color .25s}
 .btn:hover,.btn:focus-visible{color:var(--moon);border-color:rgba(242,235,214,.4);outline:none}
-select.btn{appearance:none;-webkit-appearance:none;background:rgba(5,7,13,.72);max-width:220px;text-overflow:ellipsis;cursor:pointer}
-select.btn option{background:#070B14;color:var(--moon);text-transform:none;letter-spacing:normal}
 #how{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;
   background:rgba(4,6,11,.86);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 #how.open{display:flex}
@@ -133,7 +131,7 @@ select.btn option{background:#070B14;color:var(--moon);text-transform:none;lette
 @media (max-width:640px){
   /* header: brand and help in the corners, everything else stacked + centered */
   .brand{position:absolute;top:12px;left:14px;text-align:left;padding:0}
-  .howtop{position:absolute;top:8px;right:12px;margin:0;display:inline-block}
+  .howtop{position:static;display:block;margin:12px auto 0}
   header{padding:40px 12px clamp(6px,1.2vh,12px)}
   .eyebrow{font-size:9px;letter-spacing:.18em;text-indent:.18em;gap:8px;line-height:1.7;padding:0 2px}
   .eyebrow::before,.eyebrow::after{width:14px;flex:0 0 auto}
@@ -147,9 +145,8 @@ select.btn option{background:#070B14;color:var(--moon);text-transform:none;lette
   /* footer: sparkline on its own row, controls fill below */
   footer{padding:4px 12px calc(10px + env(safe-area-inset-bottom,0px))}
   .status{line-height:1.7;margin-bottom:7px}
-  .horizon{flex-wrap:wrap;gap:8px 8px}
+  .horizon{flex-wrap:wrap;gap:8px 8px;border-top:1px solid var(--hair);padding-top:12px}
   .spark-wrap{flex:1 1 100%;height:26px}
-  select#youSel{flex:1 1 100%;max-width:none}
   .horizon .btn{flex:1 1 auto}
   .btn{padding:8px 6px;letter-spacing:.14em;text-indent:.14em}
   /* legend: compact, centered, clear of the footer */
@@ -168,8 +165,6 @@ select.btn option{background:#070B14;color:var(--moon);text-transform:none;lette
 <div class="brand">
   <div class="wordmark">The Quiet Map</div>
 </div>
-<button class="btn howtop" id="howBtn">How it works</button>
-
 <header>
   <div class="eyebrow" id="eyebrow">human noise, measured through seismic data</div>
   <div class="name-row">
@@ -180,6 +175,7 @@ select.btn option{background:#070B14;color:var(--moon);text-transform:none;lette
     </div>
     <span class="help" id="helpBtn" tabindex="0" aria-label="What is this?">?<span class="tip">Seismometers feel the ground hum with human activity: traffic, trains, footsteps in the rock. This is the place currently furthest below its own usual hum, for this hour of the day.</span></span>
   </div>
+  <button class="btn howtop" id="howBtn">How it works</button>
   <div class="counter" id="loudLine"></div>
 </header>
 
@@ -207,7 +203,6 @@ select.btn option{background:#070B14;color:var(--moon);text-transform:none;lette
       <span class="spark-label" id="sparkLabel"></span>
       <canvas id="spark"></canvas>
     </div>
-    <select class="btn sel" id="youSel"><option value="">the ground near you…</option></select>
     <button class="btn" id="refreshBtn">Ask the ground again</button>
     <button class="btn" id="saveBtn">Keep this moment</button>
   </div>
@@ -245,7 +240,7 @@ select.btn option{background:#070B14;color:var(--moon);text-transform:none;lette
 
     <div class="how-step"><div class="how-n">03</div><div>
       <h3>Each place against itself</h3>
-      <p>Bedrock and sensor depth make stations incomparable in absolute terms: Tokyo's ground is never measured against a village's. Each hour is ranked <b>against that station's own history, at the same hour of day</b>. Between instruments the map interpolates, fading with distance; it claims to hear no further than it can. Oceans carry nothing.</p>
+      <p>Bedrock and sensor depth make stations incomparable in absolute terms: Tokyo's ground is never measured against a village's. Each hour is ranked <b>against that station's own history, at the same hour of day</b>. Between instruments the map interpolates, fading with distance; it claims to hear no further than it can. In a city, an instrument hears the people within a few kilometres of itself; between stations, the glow is interpolation, not measurement. Oceans carry nothing.</p>
     </div></div>
 
     <div class="how-step"><div class="how-n">04</div><div>
@@ -254,7 +249,7 @@ select.btn option{background:#070B14;color:var(--moon);text-transform:none;lette
     </div></div>
 
     <div class="how-note" id="howNote">
-      Everything shown is measurement, refreshed hourly. Where the network is unreachable, the map waits, or offers a clearly-labelled simulation. Nothing simulated is ever presented as real.
+      Everything shown is measurement, refreshed hourly. Where the network is unreachable, the map waits, or offers a clearly-labelled simulation. Nothing simulated is ever presented as real. The approach has peer-reviewed footing: a <a href="https://www.sciencedirect.com/science/article/pii/S0198971526000438" target="_blank" rel="noopener" style="color:var(--slate)">2026 study</a> in Computers, Environment and Urban Systems found urban seismic stations track human activity within a 4–5 km radius, strongest between 2 and 15 Hz.
     </div>
   </div>
 </div>
@@ -543,14 +538,6 @@ function draw(ts){
     ctx.strokeStyle=`rgba(201,120,71,${0.34*(1-rr)})`;ctx.lineWidth=1;
     ctx.beginPath();ctx.arc(px(qk.lon),py(qk.lat),4+rr*(8+qk.mag*4),0,6.283);ctx.stroke();
   }
-  /* the ground near you: a dashed ring */
-  if(yourIdx>=0){
-    const yx=px(STATIONS[yourIdx][4]),yy=py(STATIONS[yourIdx][3]);
-    ctx.save();ctx.setLineDash([4,4]);
-    ctx.strokeStyle='rgba(242,235,214,0.55)';ctx.lineWidth=1.2;
-    ctx.beginPath();ctx.arc(yx,yy,14,0,6.283);ctx.stroke();
-    ctx.restore();
-  }
   /* stillest ground: knockout reticle + label */
   if(quietIdx>=0){
     const st=STATIONS[quietIdx],x=px(st[4]),y=py(st[3]);
@@ -821,57 +808,11 @@ document.getElementById('refreshBtn').addEventListener('click',async()=>{
 (async()=>{
   const ok=await loadServed(false);
   fetchQuakes();
-  guessYou();
   if(ok)setInterval(()=>loadServed(true),5*60*1000);      // served: quiet refresh, single settle
 })();
 setInterval(()=>{if(!simulated&&dialing&&!servedAt){ground={};signals.ok=0;signals.tried=0;fetchAll()}},60*60*1000);
 setInterval(fetchQuakes,10*60*1000);
 renderStatus();
-
-/* ===== the ground near you ===== */
-let yourIdx=-1;
-function hav(a1,o1,a2,o2){
-  const r=Math.PI/180,R=6371;
-  const s=Math.sin((a2-a1)*r/2)**2+Math.cos(a1*r)*Math.cos(a2*r)*Math.sin((o2-o1)*r/2)**2;
-  return 2*R*Math.asin(Math.sqrt(s));
-}
-const youSel=document.getElementById('youSel');
-(function fillYouSel(){
-  const idxs=STATIONS.map((s,i)=>i).sort((a,b)=>STATIONS[a][1].localeCompare(STATIONS[b][1]));
-  for(const i of idxs){
-    const o=document.createElement('option');
-    o.value=i;o.textContent=`${STATIONS[i][1]}, ${STATIONS[i][2]}`;
-    youSel.appendChild(o);
-  }
-})();
-function showYou(bi,dKm,auto){
-  yourIdx=bi;youSel.value=String(bi);
-  const st=STATIONS[bi],g=ground[bi];
-  if(auto&&g===undefined)return;
-  probe.innerHTML=`<div class="p-name">${st[1]}, ${st[2]}</div>
-    <div class="p-line">the ground near you${dKm!=null?` · ${Math.round(dKm)} km away`:''}</div>
-    <div class="p-score">${g!==undefined?`stiller than ${Math.round((1-g.p)*100)}% of its usual hours${simulated?' · SIMULATED':''}`:'not reporting this hour'}</div>`;
-  probe.style.left=Math.min(W-300,px(st[4])+14)+'px';
-  probe.style.top=Math.max(8,py(st[3])-10)+'px';
-  probe.classList.add('on');
-  clearTimeout(probeTimer);
-  probeTimer=setTimeout(()=>probe.classList.remove('on'),auto?6000:9000);
-}
-youSel.addEventListener('change',()=>{if(youSel.value!=='')showYou(+youSel.value,null,false)});
-async function guessYou(){
-  /* a quiet guess from network location; the list is there to correct it */
-  try{
-    const r=await fetchT('https://ipwho.is/',6000);
-    const g=await r.json();
-    if(!g||!g.success)return;
-    let bi=-1,bd=1e18;
-    for(let i=0;i<STATIONS.length;i++){
-      const d=hav(g.latitude,g.longitude,STATIONS[i][3],STATIONS[i][4]);
-      if(d<bd){bd=d;bi=i}
-    }
-    if(bi>=0)showYou(bi,bd,true);
-  }catch(e){}
-}
 
 /* ===== how overlay ===== */
 const how=document.getElementById('how');
