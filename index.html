@@ -26,8 +26,8 @@ body{background:var(--ink);color:var(--moon);font-family:'IBM Plex Mono',ui-mono
 .wordmark{font-size:10px;letter-spacing:.4em;color:var(--slate);text-transform:uppercase}
 .wordmark b{color:var(--moon-soft);font-weight:500}
 .howtop{position:absolute;top:16px;right:20px;z-index:6}
-.name-row{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:16px}
-.help{position:relative;flex:0 0 auto;align-self:center;width:20px;height:20px;border:1px solid var(--hair);border-radius:50%;
+.name-row{display:flex;align-items:flex-start;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:16px}
+.help{position:relative;flex:0 0 auto;align-self:flex-start;margin-top:13px;width:20px;height:20px;border:1px solid var(--hair);border-radius:50%;
   display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--slate);cursor:help;visibility:hidden}
 .help:hover,.help:focus{color:var(--moon);border-color:rgba(242,235,214,.4);outline:none}
 .help .tip{position:absolute;top:27px;left:50%;transform:translateX(-50%);width:min(300px,80vw);padding:12px 14px;
@@ -45,10 +45,10 @@ header{text-align:center;padding:clamp(20px,3.4vh,38px) 20px clamp(8px,1.5vh,16p
 .eyebrow::before,.eyebrow::after{content:"";height:1px;width:clamp(24px,6vw,72px);background:linear-gradient(90deg,transparent,rgba(139,155,176,.4))}
 .eyebrow::after{background:linear-gradient(90deg,rgba(139,155,176,.4),transparent)}
 h1.place{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;
-  font-size:clamp(24px,3.8vw,44px);line-height:1.0;color:var(--moon);margin-top:0;
+  font-size:clamp(38px,4vw,46px);line-height:1.0;color:var(--moon);margin-top:0;
   text-shadow:0 0 46px rgba(242,235,214,.18);transition:opacity .5s ease;min-height:1.05em}
 h1.place.dim{opacity:.15}
-.meta{margin-top:7px;font-size:11px;letter-spacing:.12em;color:var(--slate)}
+.meta{margin-top:6px;font-size:11px;letter-spacing:.12em;color:var(--slate)}
 .meta b{color:var(--moon);font-weight:500}
 .counter{margin-top:4px;font-size:10px;letter-spacing:.1em;color:var(--slate-dim)}
 .counter b{color:#C97847;font-weight:400}
