@@ -29,7 +29,7 @@ body{background:var(--ink);color:var(--moon);font-family:'IBM Plex Mono',ui-mono
 .wordmark b{color:var(--moon-soft);font-weight:500}
 .howtop{position:absolute;top:16px;right:20px;z-index:6}
 .name-row{display:flex;align-items:flex-start;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:16px}
-.help{position:relative;flex:0 0 auto;align-self:flex-start;margin-top:13px;width:20px;height:20px;border:1px solid var(--hair);border-radius:50%;
+.help{position:relative;flex:0 0 auto;width:20px;height:20px;border:1px solid var(--hair);border-radius:50%;
   display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--slate);cursor:help;visibility:hidden}
 .help:hover,.help:focus{color:var(--moon);border-color:rgba(242,235,214,.4);outline:none}
 .help .tip{position:absolute;top:27px;left:50%;transform:translateX(-50%);width:min(300px,80vw);padding:12px 14px;
@@ -41,7 +41,8 @@ header{text-align:center;padding:clamp(20px,3.4vh,38px) 20px clamp(8px,1.5vh,16p
 @media (max-width:960px){.brand{position:static;text-align:center;padding:12px 0 0}header{padding-top:10px}.howtop{position:static;display:block;margin:10px auto 0}}
 .kicker{margin-top:clamp(3px,0.37vw,4.5px);font-size:clamp(8px,0.85vw,9.7px);letter-spacing:.22em;line-height:1.28;text-align:right;color:var(--moon-soft);text-transform:uppercase}
 .name-col{display:flex;flex-direction:column;align-items:flex-start;text-align:left}
-@media (max-width:640px){.name-col{align-items:center;text-align:center}.name-row{gap:8px;margin-top:10px}}
+.name-line{display:flex;align-items:center;gap:10px}
+@media (max-width:640px){.name-col{align-items:center;text-align:center}.name-line{justify-content:center}.name-row{gap:8px;margin-top:10px}}
 .eyebrow{font-size:clamp(13px,1.6vw,18px);letter-spacing:.3em;text-indent:.3em;color:rgba(242,235,214,.82);text-transform:uppercase;
   display:flex;align-items:center;justify-content:center;gap:18px}
 .eyebrow::before,.eyebrow::after{content:"";height:1px;width:clamp(24px,6vw,72px);background:linear-gradient(90deg,transparent,rgba(139,155,176,.4))}
@@ -170,10 +171,12 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   <div class="name-row">
     <span class="kicker">the stillest<br>place on earth<br>right now:</span>
     <div class="name-col">
-      <h1 class="place" id="placeName">&nbsp;</h1>
+      <div class="name-line">
+        <h1 class="place" id="placeName">&nbsp;</h1>
+        <span class="help" id="helpBtn" tabindex="0" aria-label="What is this?">?<span class="tip">Seismometers feel the ground hum with human activity: traffic, trains, footsteps in the rock. This is the place currently furthest below its own usual hum, for this hour of the day.</span></span>
+      </div>
       <div class="meta" id="placeMeta"></div>
     </div>
-    <span class="help" id="helpBtn" tabindex="0" aria-label="What is this?">?<span class="tip">Seismometers feel the ground hum with human activity: traffic, trains, footsteps in the rock. This is the place currently furthest below its own usual hum, for this hour of the day.</span></span>
   </div>
   <button class="btn howtop" id="howBtn">How it works</button>
   <div class="counter" id="loudLine"></div>
