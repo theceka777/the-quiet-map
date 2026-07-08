@@ -49,9 +49,11 @@ html,body{height:100%}
 body{background:var(--ink);color:var(--moon);font-family:'IBM Plex Mono',ui-monospace,monospace;overflow:hidden;display:flex;flex-direction:column}
 @supports (height:100dvh){body{height:100dvh}}
 .brand{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:6;text-align:center;white-space:nowrap}
-.wordmark{font-size:15px;letter-spacing:.4em;text-indent:.4em;color:var(--slate);text-transform:uppercase}
+.wordmark{font-size:15px;letter-spacing:.4em;text-indent:.4em;color:var(--slate);text-transform:uppercase;
+  display:flex;align-items:center;gap:14px}
 .wordmark b{color:var(--moon-soft);font-weight:500}
-.howtop{position:absolute;top:16px;right:20px;z-index:6}
+.wordmark::before,.wordmark::after{content:"";height:1px;width:clamp(24px,6vw,72px);flex:0 0 auto;background:linear-gradient(90deg,transparent,rgba(139,155,176,.4))}
+.wordmark::after{background:linear-gradient(90deg,rgba(139,155,176,.4),transparent)}
 .name-row{display:flex;align-items:flex-start;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:16px}
 .help{position:relative;flex:0 0 auto;width:20px;height:20px;border:1px solid var(--hair);border-radius:50%;
   display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--slate);cursor:help;visibility:hidden}
@@ -69,8 +71,6 @@ header{text-align:center;padding:clamp(44px,6vh,58px) 20px clamp(8px,1.5vh,16px)
 @media (max-width:640px){.name-col{align-items:center;text-align:center}.name-line{justify-content:center}.name-row{gap:8px;margin-top:10px}}
 .eyebrow{font-size:clamp(10px,1.2vw,13px);letter-spacing:.3em;text-indent:.3em;color:rgba(242,235,214,.82);text-transform:uppercase;
   display:flex;align-items:center;justify-content:center;gap:18px}
-.eyebrow::before,.eyebrow::after{content:"";height:1px;width:clamp(24px,6vw,72px);background:linear-gradient(90deg,transparent,rgba(139,155,176,.4))}
-.eyebrow::after{background:linear-gradient(90deg,rgba(139,155,176,.4),transparent)}
 h1.place{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;
   font-size:clamp(38px,4vw,46px);line-height:1.0;color:var(--moon);margin-top:0;
   text-shadow:0 0 46px rgba(242,235,214,.18);transition:opacity .5s ease;min-height:1.05em}
@@ -126,6 +126,13 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   color:var(--slate);background:none;border:1px solid var(--hair);padding:8px 14px;cursor:pointer;white-space:nowrap;
   transition:color .25s,border-color .25s}
 .btn:hover,.btn:focus-visible{color:var(--moon);border-color:rgba(242,235,214,.4);outline:none}
+/* a faint light crosses the footer buttons, rarely — just enough to catch the eye */
+.horizon .btn{position:relative;overflow:hidden}
+.horizon .btn::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;pointer-events:none;
+  background:linear-gradient(105deg,transparent,rgba(242,235,214,.13),transparent);
+  transform:translateX(-160%) skewX(-18deg);animation:sheen 17s linear infinite}
+#saveBtn::after{animation-delay:8.5s}
+@keyframes sheen{0%{transform:translateX(-160%) skewX(-18deg)}5%{transform:translateX(380%) skewX(-18deg)}100%{transform:translateX(380%) skewX(-18deg)}}
 #how{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;
   background:rgba(4,6,11,.86);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 #how.open{display:flex}
@@ -157,10 +164,10 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   /* header: brand centered on top, how-it-works tucked in the corner */
   .brand{top:10px}
   .wordmark{font-size:13px;letter-spacing:.28em;text-indent:.28em}
-  .btn.howtop{position:absolute;top:9px;right:10px;margin:0;display:inline-block;font-size:8px;padding:6px 8px;letter-spacing:.12em;text-indent:.12em}
-  header{padding:44px 12px clamp(6px,1.2vh,12px)}
+  .wordmark{gap:8px}
+  .wordmark::before,.wordmark::after{width:16px}
+  header{padding:40px 12px clamp(6px,1.2vh,12px)}
   .eyebrow{font-size:8px;letter-spacing:.18em;text-indent:.18em;gap:8px;line-height:1.7;padding:0 2px}
-  .eyebrow::before,.eyebrow::after{width:14px;flex:0 0 auto}
   .name-row{flex-direction:column;align-items:center;gap:3px;margin-top:10px}
   .kicker{text-align:center;font-size:8.5px;line-height:1.55;letter-spacing:.2em;text-indent:.2em}
   .name-col{align-items:center;text-align:center;max-width:100%}
@@ -184,7 +191,7 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   @supports (height:100dvh){.how-card{max-height:84dvh}.keep-card{max-height:88dvh}}
 }
 @media (max-width:374px){.wordmark{font-size:11px}}
-@media (prefers-reduced-motion:reduce){h1.place{transition:none}.dotp.q,.dotp.l{animation:none}}
+@media (prefers-reduced-motion:reduce){h1.place{transition:none}.dotp.q,.dotp.l{animation:none}.horizon .btn::after{animation:none}}
 </style>
 </head>
 <body>
@@ -212,7 +219,6 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
       <div class="meta" id="placeMeta"></div>
     </div>
   </div>
-  <button class="btn howtop" id="howBtn">How it works</button>
   <div class="counter" id="loudLine"></div>
 </header>
 
@@ -240,7 +246,7 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
       <span class="spark-label" id="sparkLabel"></span>
       <canvas id="spark"></canvas>
     </div>
-    <button class="btn" id="refreshBtn">Ask the ground again</button>
+    <button class="btn" id="howBtn">How it works</button>
     <button class="btn" id="saveBtn">Keep this moment</button>
   </div>
 </footer>
@@ -836,12 +842,6 @@ dialBtn.addEventListener('click',()=>{
   fetchAll();
 });
 demoBtn.addEventListener('click',simulate);
-document.getElementById('refreshBtn').addEventListener('click',async()=>{
-  if(simulated)return;
-  if(servedAt){lastKey='';loadServed(true);return}
-  ground={};signals.ok=0;signals.tried=0;lastKey='';quietIdx=-1;
-  renderStatus();fetchAll();fetchQuakes();
-});
 (async()=>{
   const ok=await loadServed(false);
   fetchQuakes();
