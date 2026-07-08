@@ -48,8 +48,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{height:100%}
 body{background:var(--ink);color:var(--moon);font-family:'IBM Plex Mono',ui-monospace,monospace;overflow:hidden;display:flex;flex-direction:column}
 @supports (height:100dvh){body{height:100dvh}}
-.brand{position:absolute;top:16px;left:20px;z-index:6}
-.wordmark{font-size:10px;letter-spacing:.4em;color:var(--slate);text-transform:uppercase}
+.brand{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:6;text-align:center;white-space:nowrap}
+.wordmark{font-size:15px;letter-spacing:.4em;text-indent:.4em;color:var(--slate);text-transform:uppercase}
 .wordmark b{color:var(--moon-soft);font-weight:500}
 .howtop{position:absolute;top:16px;right:20px;z-index:6}
 .name-row{display:flex;align-items:flex-start;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:16px}
@@ -61,13 +61,13 @@ body{background:var(--ink);color:var(--moon);font-family:'IBM Plex Mono',ui-mono
   font-size:10px;line-height:1.8;letter-spacing:.04em;color:var(--slate);
   text-align:left;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
 .help:hover .tip,.help:focus .tip{opacity:1}
-header{text-align:center;padding:clamp(20px,3.4vh,38px) 20px clamp(8px,1.5vh,16px);flex:0 0 auto;position:relative;z-index:5}
-@media (max-width:960px){.brand{position:static;text-align:center;padding:12px 0 0}header{padding-top:10px}.howtop{position:static;display:block;margin:10px auto 0}}
+header{text-align:center;padding:clamp(44px,6vh,58px) 20px clamp(8px,1.5vh,16px);flex:0 0 auto;position:relative;z-index:5}
+@media (max-width:960px){header{padding-top:46px}}
 .kicker{margin-top:clamp(3px,0.37vw,4.5px);font-size:clamp(8px,0.85vw,9.7px);letter-spacing:.22em;line-height:1.28;text-align:right;color:var(--moon-soft);text-transform:uppercase}
 .name-col{display:flex;flex-direction:column;align-items:flex-start;text-align:left}
 .name-line{display:flex;align-items:center;gap:10px}
 @media (max-width:640px){.name-col{align-items:center;text-align:center}.name-line{justify-content:center}.name-row{gap:8px;margin-top:10px}}
-.eyebrow{font-size:clamp(13px,1.6vw,18px);letter-spacing:.3em;text-indent:.3em;color:rgba(242,235,214,.82);text-transform:uppercase;
+.eyebrow{font-size:clamp(10px,1.2vw,13px);letter-spacing:.3em;text-indent:.3em;color:rgba(242,235,214,.82);text-transform:uppercase;
   display:flex;align-items:center;justify-content:center;gap:18px}
 .eyebrow::before,.eyebrow::after{content:"";height:1px;width:clamp(24px,6vw,72px);background:linear-gradient(90deg,transparent,rgba(139,155,176,.4))}
 .eyebrow::after{background:linear-gradient(90deg,rgba(139,155,176,.4),transparent)}
@@ -154,11 +154,12 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
 .keep-card img{width:100%;height:auto;border:1px solid var(--hair);margin:14px 0;display:block}
 .keep-card .btn{display:inline-block;text-decoration:none}
 @media (max-width:640px){
-  /* header: brand and help in the corners, everything else stacked + centered */
-  .brand{position:absolute;top:12px;left:14px;text-align:left;padding:0}
-  .howtop{position:static;display:block;margin:12px auto 0}
-  header{padding:40px 12px clamp(6px,1.2vh,12px)}
-  .eyebrow{font-size:9px;letter-spacing:.18em;text-indent:.18em;gap:8px;line-height:1.7;padding:0 2px}
+  /* header: brand centered on top, how-it-works tucked in the corner */
+  .brand{top:10px}
+  .wordmark{font-size:13px;letter-spacing:.28em;text-indent:.28em}
+  .btn.howtop{position:absolute;top:9px;right:10px;margin:0;display:inline-block;font-size:8px;padding:6px 8px;letter-spacing:.12em;text-indent:.12em}
+  header{padding:44px 12px clamp(6px,1.2vh,12px)}
+  .eyebrow{font-size:8px;letter-spacing:.18em;text-indent:.18em;gap:8px;line-height:1.7;padding:0 2px}
   .eyebrow::before,.eyebrow::after{width:14px;flex:0 0 auto}
   .name-row{flex-direction:column;align-items:center;gap:3px;margin-top:10px}
   .kicker{text-align:center;font-size:8.5px;line-height:1.55;letter-spacing:.2em;text-indent:.2em}
@@ -182,6 +183,7 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   .how-card,.keep-card{max-height:84vh}
   @supports (height:100dvh){.how-card{max-height:84dvh}.keep-card{max-height:88dvh}}
 }
+@media (max-width:374px){.wordmark{font-size:11px}}
 @media (prefers-reduced-motion:reduce){h1.place{transition:none}.dotp.q,.dotp.l{animation:none}}
 </style>
 </head>
