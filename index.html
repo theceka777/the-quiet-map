@@ -65,7 +65,12 @@ body{background:var(--ink);color:var(--moon);font-family:'IBM Plex Mono',ui-mono
 .help:hover .tip,.help:focus .tip{opacity:1}
 header{text-align:center;padding:clamp(44px,6vh,58px) 20px clamp(8px,1.5vh,16px);flex:0 0 auto;position:relative;z-index:5}
 @media (max-width:960px){header{padding-top:46px}}
-.kicker{margin-top:clamp(3px,0.37vw,4.5px);font-size:clamp(8px,0.85vw,9.7px);letter-spacing:.22em;line-height:1.28;text-align:right;color:var(--moon-soft);text-transform:uppercase}
+.kicker{margin-top:clamp(3px,0.37vw,4.5px);font-size:clamp(8px,0.85vw,9.7px);letter-spacing:.22em;line-height:1.28;text-align:right;color:var(--moon-soft);text-transform:uppercase;
+  background:linear-gradient(105deg,var(--moon-soft) 42%,#FFFDF2 50%,var(--moon-soft) 58%);
+  background-size:300% 100%;background-position:150% 0;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  animation:kicksheen 21s linear infinite}
+@keyframes kicksheen{0%{background-position:150% 0}6%{background-position:-150% 0}100%{background-position:-150% 0}}
 .name-col{display:flex;flex-direction:column;align-items:flex-start;text-align:left}
 .name-line{display:flex;align-items:center;gap:10px}
 @media (max-width:640px){.name-col{align-items:center;text-align:center}.name-line{justify-content:center}.name-row{gap:8px;margin-top:10px}}
@@ -191,7 +196,7 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   @supports (height:100dvh){.how-card{max-height:84dvh}.keep-card{max-height:88dvh}}
 }
 @media (max-width:374px){.wordmark{font-size:11px}}
-@media (prefers-reduced-motion:reduce){h1.place{transition:none}.dotp.q,.dotp.l{animation:none}.horizon .btn::after{animation:none}}
+@media (prefers-reduced-motion:reduce){h1.place{transition:none}.dotp.q,.dotp.l{animation:none}.horizon .btn::after{animation:none}.kicker{animation:none}}
 </style>
 </head>
 <body>
@@ -418,6 +423,15 @@ const elName=document.getElementById('placeName'),elMeta=document.getElementById
       elLoud=document.getElementById('loudLine'),statusLine=document.getElementById('statusLine'),
       sparkLabel=document.getElementById('sparkLabel');
 let lastKey='',loudest='';
+/* p is the anomaly percentile (0 = quietest sample in the window).
+   Never claim 100%: with ~90 samples, "quieter than all of them" honestly supports ~99%.
+   Below the midpoint, flip the sentence — "louder than 82%" reads truer than "quieter than 18%". */
+function phrase(p,bold){
+  const q=Math.round((1-p)*100);
+  const [word,n]=q>=50?['quieter',Math.min(q,99)]:['louder',Math.min(100-q,99)];
+  const pct=bold?`<b>${n}%</b>`:`${n}%`;
+  return `${word} than ${pct} of its usual hours`;
+}
 function updateHeadline(){
   let bi=-1,bp=2,wi=-1,wp=-1;
   for(const k in ground){
@@ -437,7 +451,7 @@ function updateHeadline(){
     setTimeout(()=>{
       elName.textContent=b[1]+', '+b[2];
       document.getElementById('helpBtn').style.visibility='visible';
-      elMeta.innerHTML=`quieter than <b>${still}%</b> of its usual hours`;
+      elMeta.innerHTML=phrase(bp,true);
       elLoud.innerHTML='';
       elName.classList.remove('dim');
       drawSpark();
@@ -661,7 +675,7 @@ cv.addEventListener('pointerdown',e=>{
   if(bd>45*45)return;
   const st=STATIONS[bi],g=ground[bi];
   const gl=g!==undefined
-    ?`<div class="p-score">quieter than ${Math.round((1-g.p)*100)}% of its usual hours · ${g.db.toFixed(1)} dB (4–14 hz)${simulated?' · SIMULATED':''}</div>`
+    ?`<div class="p-score">${phrase(g.p)} · ${g.db.toFixed(1)} dB (4–14 hz)${simulated?' · SIMULATED':''}</div>`
     :`<div class="p-score">not reporting from this environment</div>`;
   probe.innerHTML=`<div class="p-name">${st[1]}</div>
     <div class="p-line">${st[2]} · station ${st[0].split('.')[1]} (${st[0].split('.')[0]})</div>${gl}`;
@@ -906,7 +920,7 @@ document.getElementById('saveBtn').addEventListener('click',async()=>{
   x.fillText(cname,540,300);
   x.shadowBlur=0;
   x.fillStyle='#8B9BB0';x.font='400 24px "IBM Plex Mono"';
-  x.fillText(`quieter than ${still}% of its usual hours`,540,360);
+  x.fillText(phrase(g.p),540,360);
   const dstr=new Date().toUTCString().slice(0,22)+' UTC';
   x.fillStyle='#5A6A80';x.font='400 20px "IBM Plex Mono"';
   x.fillText(`${Math.abs(st[3]).toFixed(2)}°${st[3]>=0?'N':'S'}  ${Math.abs(st[4]).toFixed(2)}°${st[4]>=0?'E':'W'}  ·  4–14 Hz`,540,1230);
