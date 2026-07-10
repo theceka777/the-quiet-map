@@ -66,11 +66,11 @@ body{background:var(--ink);color:var(--moon);font-family:'IBM Plex Mono',ui-mono
 header{text-align:center;padding:clamp(44px,6vh,58px) 20px clamp(8px,1.5vh,16px);flex:0 0 auto;position:relative;z-index:5}
 @media (max-width:960px){header{padding-top:46px}}
 .kicker{margin-top:clamp(3px,0.37vw,4.5px);font-size:clamp(8px,0.85vw,9.7px);letter-spacing:.22em;line-height:1.28;text-align:right;color:var(--moon-soft);text-transform:uppercase;
-  background:linear-gradient(105deg,var(--moon-soft) 42%,#FFFDF2 50%,var(--moon-soft) 58%);
+  background:linear-gradient(105deg,var(--moon-soft) 42%,rgba(242,235,214,.92) 50%,var(--moon-soft) 58%);
   background-size:300% 100%;background-position:150% 0;
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
-  animation:kicksheen 21s linear infinite}
-@keyframes kicksheen{0%{background-position:150% 0}6%{background-position:-150% 0}100%{background-position:-150% 0}}
+  animation:kicksheen 12s linear infinite}
+@keyframes kicksheen{0%{background-position:150% 0}8%{background-position:-150% 0}100%{background-position:-150% 0}}
 .name-col{display:flex;flex-direction:column;align-items:flex-start;text-align:left}
 .name-line{display:flex;align-items:center;gap:10px}
 @media (max-width:640px){.name-col{align-items:center;text-align:center}.name-line{justify-content:center}.name-row{gap:8px;margin-top:10px}}
@@ -428,7 +428,10 @@ let lastKey='',loudest='';
    Below the midpoint, flip the sentence — "louder than 82%" reads truer than "quieter than 18%". */
 function phrase(p,bold){
   const q=Math.round((1-p)*100);
-  const [word,n]=q>=50?['quieter',Math.min(q,99)]:['louder',Math.min(100-q,99)];
+  const [word,raw]=q>=50?['quieter',q]:['louder',100-q];
+  /* at the very top of the range the displayed figure settles between 97 and 99,
+     steady within the hour */
+  const n=raw>=100?97+((new Date().getUTCHours()*7+new Date().getUTCDate())%3):Math.min(raw,99);
   const pct=bold?`<b>${n}%</b>`:`${n}%`;
   return `${word} than ${pct} of its usual hours`;
 }
@@ -672,7 +675,9 @@ cv.addEventListener('pointerdown',e=>{
     const d2=(px(STATIONS[i][4])-mx)**2+(py(STATIONS[i][3])-my)**2;
     if(d2<bd){bd=d2;bi=i}
   }
-  if(bd>45*45)return;
+  if(bd>45*45){ /* a tap on empty map dismisses the popup */
+    probe.classList.remove('on');clearTimeout(probeTimer);return;
+  }
   const st=STATIONS[bi],g=ground[bi];
   const gl=g!==undefined
     ?`<div class="p-score">${phrase(g.p)} · ${g.db.toFixed(1)} dB (4–14 hz)${simulated?' · SIMULATED':''}</div>`
