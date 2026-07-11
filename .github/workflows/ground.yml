@@ -41,4 +41,4 @@ jobs:
           git add -f ground.json archive/
           [ -f og.png ] && git add -f og.png || true
           git commit -m "ground: hourly measurement"
-          git push -f origin HEAD:data
+          git push -f origin HEAD:refs/heads/data
