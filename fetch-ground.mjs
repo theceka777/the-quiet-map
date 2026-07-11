@@ -87,16 +87,34 @@ export function bandMeans(wins){
 export function stillness(means){
   if(means.length<12)return null;
   means.sort((a,b)=>a.end-b.end);
-  const hsum=new Array(24).fill(0),hn=new Array(24).fill(0);
-  for(const m of means){const h=new Date(m.end).getUTCHours();hsum[h]+=m.db;hn[h]++}
-  const anom=m=>{const h=new Date(m.end).getUTCHours();return hn[h]?m.db-hsum[h]/hn[h]:null};
+  /* seasonal norm: same hour of day, weekdays and weekends kept apart when the
+     bucket has real support (>=3 samples), otherwise plain hour-of-day.
+     Without the day-type split, every station on Earth looks "anomalously
+     quiet" on Sunday morning. */
+  const key=m=>{const d=new Date(m.end);return d.getUTCHours()+((d.getUTCDay()===0||d.getUTCDay()===6)?24:0)};
+  const bsum={},bn={},hsum=new Array(24).fill(0),hn=new Array(24).fill(0);
+  for(const m of means){
+    const k=key(m),h=new Date(m.end).getUTCHours();
+    bsum[k]=(bsum[k]||0)+m.db;bn[k]=(bn[k]||0)+1;
+    hsum[h]+=m.db;hn[h]++;
+  }
+  const norm=m=>{
+    const k=key(m);
+    if((bn[k]||0)>=3)return bsum[k]/bn[k];
+    const h=new Date(m.end).getUTCHours();
+    return hn[h]?hsum[h]/hn[h]:null;
+  };
+  const anom=m=>{const mu=norm(m);return mu===null?null:m.db-mu};
   const cur=means[means.length-1],ca=anom(cur);
   if(ca===null)return null;
   const others=means.slice(0,-1).map(anom).filter(a=>a!==null);
   if(others.length<10)return null;
   const below=others.filter(a=>a<ca).length;
+  /* serve only the last 7 days as sparkline history; the percentile above may
+     rest on a much longer archive-fed baseline */
+  const cutoff=cur.end-HOURS*3600000;
   return {p:below/others.length,db:cur.db,
-          hist:means.map(mm=>[mm.end,Math.round(mm.db*10)/10])};
+          hist:means.filter(mm=>mm.end>=cutoff).map(mm=>[mm.end,Math.round(mm.db*10)/10])};
 }
 
 async function fetchStation(st){
@@ -109,22 +127,43 @@ async function fetchStation(st){
   try{
     const r=await fetch(url,{signal:ac.signal});
     if(!r.ok)throw new Error('http '+r.status);
-    const res=stillness(bandMeans(parsePsdXML(await r.text())));
-    if(!res)throw new Error('insufficient history');
-    return [target.split('.').slice(0,2).join('.'),{place,country,lat,lon,...res}];
+    const means=bandMeans(parsePsdXML(await r.text()));
+    if(means.length<12)throw new Error('insufficient history');
+    return [target.split('.').slice(0,2).join('.'),{place,country,lat,lon},means];
   }finally{clearTimeout(to)}
 }
 
+/* extend each station's fresh series with the on-disk archive (up to 28 days)
+   so the norm can tell weekday from weekend and the percentile has support */
+function loadArchive(fs,days=28){
+  const hist={};
+  for(let i=0;i<days;i++){
+    const day=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
+    try{
+      const cur=JSON.parse(fs.readFileSync(new URL(`./archive/${day}.json`,import.meta.url),'utf8'));
+      for(const code in cur)(hist[code]??=[]).push(...cur[code]);
+    }catch(e){}
+  }
+  return hist;
+}
+
 async function main(){
+  const fs=await import('fs');
+  const archive=loadArchive(fs);
   const stations={};const errors={};
   let idx=0;
   await Promise.all(Array.from({length:CONC},async()=>{
     while(idx<STATIONS.length){
       const st=STATIONS[idx++];
       try{
-        const [code,data]=await fetchStation(st);
-        stations[code]=data;
-        console.log('ok  ',code.padEnd(8),'stillness',Math.round((1-data.p)*100));
+        const [code,meta,means]=await fetchStation(st);
+        const seen=new Set(means.map(m=>m.end));
+        const extra=(archive[code]||[]).filter(([end])=>!seen.has(end)).map(([end,db])=>({end,db}));
+        const res=stillness(means.concat(extra));
+        if(!res)throw new Error('insufficient history');
+        stations[code]={...meta,...res};
+        console.log('ok  ',code.padEnd(8),'stillness',Math.round((1-res.p)*100),
+          extra.length?`(+${extra.length} archived)`:'');
       }catch(e){
         errors[st[0]]=String(e.message||e);
         console.log('fail',st[0],String(e.message||e));
@@ -138,7 +177,6 @@ async function main(){
     ok:Object.keys(stations).length,failed:Object.keys(errors).length,
     stations,errors
   };
-  const fs=await import('fs');
   fs.writeFileSync(new URL('./ground.json',import.meta.url),JSON.stringify(out));
   /* archive: one small file per UTC day, topped up hourly.
      builds the multi-week baseline the pulse detector needs (day-of-week norms). */

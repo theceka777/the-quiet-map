@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>The Quiet Map: Ground Truth · human noise, measured through seismic data</title>
 <meta property="og:title" content="The Quiet Map: Ground Truth">
 <meta property="og:description" content="Human noise, measured through seismic data. A live map of the quietest place on earth, refreshed hourly.">
@@ -296,7 +296,7 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
 
     <div class="how-step"><div class="how-n">03</div><div>
       <h3>Each place against itself</h3>
-      <p>Bedrock and sensor depth make stations incomparable in absolute terms: Tokyo's ground is never measured against a village's. Each hour is ranked <b>against that station's own history, at the same hour of day</b>. Between instruments the map interpolates, fading with distance; it claims to hear no further than it can. In a city, an instrument hears the people within a few kilometres of itself; between stations, the glow is interpolation, not measurement. Oceans carry nothing.</p>
+      <p>Bedrock and sensor depth make stations incomparable in absolute terms: Tokyo's ground is never measured against a village's. Each hour is ranked <b>against that station's own history, at the same hour of day — weekdays and weekends kept apart</b>, over up to four weeks of records. Between instruments the map interpolates, fading with distance; it claims to hear no further than it can. In a city, an instrument hears the people within a few kilometres of itself; between stations, the glow is interpolation, not measurement. Oceans carry nothing.</p>
     </div></div>
 
     <div class="how-step"><div class="how-n">04</div><div>
@@ -436,11 +436,13 @@ let lastKey='',loudest='';
    Below the midpoint, flip the sentence — "louder than 82%" reads truer than "quieter than 18%". */
 function phrase(p,bold){
   const q=Math.round((1-p)*100);
-  const [word,raw]=q>=50?['quieter',q]:['louder',100-q];
-  /* at the very top of the range the displayed figure settles between 97 and 99,
-     steady within the hour */
-  const n=raw>=100?97+((new Date().getUTCHours()*7+new Date().getUTCDate())%3):Math.min(raw,99);
-  const pct=bold?`<b>${n}%</b>`:`${n}%`;
+  const quiet=q>=50, raw=quiet?q:100-q;
+  if(raw>=100){ /* beyond every sample on record: say exactly that, no percentage */
+    const w=quiet?'quietest':'loudest';
+    return bold?`its <b>${w} hour</b> in days`:`its ${w} hour in days`;
+  }
+  const word=quiet?'quieter':'louder';
+  const pct=bold?`<b>${raw}%</b>`:`${raw}%`;
   return `${word} than ${pct} of its usual hours`;
 }
 function updateHeadline(){
@@ -829,11 +831,13 @@ async function fetchAll(){
     };
     await Promise.all(Array.from({length:conc},worker));
   }
-  await drain(order,4);
+  /* be gentle with IRIS: this path only exists as a fallback, keep it to
+     two connections and a single quiet retry pass */
+  await drain(order,2);
   if(failed.length&&signals.ok&&!simulated){
     signals.tried=STATIONS.length-failed.length;
     const retry=failed.splice(0);
-    await drain(retry,2);
+    await drain(retry,1);
   }
   clearTimeout(earlyTimer);
   if(signals.ok){lastKey='';updateHeadline();renderStatus()}
