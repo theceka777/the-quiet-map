@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://theceka777.github.io/the-quiet-map/sitemap.xml
+Sitemap: https://thequietmap.co/sitemap.xml
