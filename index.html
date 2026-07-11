@@ -7,10 +7,10 @@
 <meta property="og:title" content="The Quiet Map: Ground Truth">
 <meta property="og:description" content="Human noise, measured through seismic data. A live map of the quietest place on earth, refreshed hourly.">
 <meta property="og:image" content="https://raw.githubusercontent.com/theceka777/the-quiet-map/data/og.png">
-<meta property="og:url" content="https://thequietmap.co/">
+<meta property="og:url" content="https://thequietmap.org/">
 <meta name="description" content="The Quiet Map finds the quietest place on Earth right now by reading a global network of seismometers. Human activity — traffic, trains, footsteps — registers as ground vibration; this live map shows where that hum has fallen quietest, refreshed hourly.">
 <meta name="robots" content="index, follow, max-image-preview:large">
-<link rel="canonical" href="https://thequietmap.co/">
+<link rel="canonical" href="https://thequietmap.org/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Quiet Map">
 <meta name="twitter:card" content="summary_large_image">
@@ -25,7 +25,7 @@
   "@type": "WebApplication",
   "name": "The Quiet Map",
   "alternateName": "The Quiet Map: Ground Truth",
-  "url": "https://thequietmap.co/",
+  "url": "https://thequietmap.org/",
   "applicationCategory": "Data visualization",
   "operatingSystem": "Web",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -910,7 +910,7 @@ document.getElementById('saveBtn').addEventListener('click',async()=>{
   dl.href=url;
   dl.download=fname;
   /* the regular share options */
-  const pageUrl='https://thequietmap.co/';
+  const pageUrl='https://thequietmap.org/';
   const shareText=`The quietest place on earth right now: ${st[1]}, ${st[2]} — ${phrase(g.p)}.`;
   const blob=await new Promise(r=>cvs.toBlob(r,'image/png'));
   const sBtn=document.getElementById('keepShare');

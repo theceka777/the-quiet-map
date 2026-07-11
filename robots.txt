@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://thequietmap.co/sitemap.xml
+Sitemap: https://thequietmap.org/sitemap.xml
