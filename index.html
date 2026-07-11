@@ -277,7 +277,7 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
   <div class="how-card">
     <button class="how-close" id="howClose" aria-label="Close">✕</button>
     <h2>How the quiet is measured</h2>
-    <div class="how-sub">a hundred seismometers, listening around the clock · no model · no estimates</div>
+    <div class="how-sub">a hundred seismometers, listening around the clock · measured at each instrument · interpolated between</div>
 
     <div class="how-lede">
       <p>For a century we buried instruments in the planet's crust to catch it misbehaving: earthquakes, eruptions, distant bombs. Pointed the other way, they reveal something stranger: <b>the earth can feel us</b>. Traffic, trains, footsteps: civilization is a faint, permanent tremor in the rock. When the 2020 lockdowns emptied the streets, seismometers watched humanity's hum fall. The one time we turned our volume down, the planet noticed.</p>
@@ -305,74 +305,18 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
     </div></div>
 
     <div class="how-note" id="howNote">
-      Everything shown is measurement, refreshed hourly. Where the network is unreachable, the map waits, or offers a clearly-labelled simulation. Nothing simulated is ever presented as real. The approach has peer-reviewed footing: a <a href="https://www.sciencedirect.com/science/article/pii/S0198971526000438" target="_blank" rel="noopener" style="color:var(--slate)">2026 study</a> in Computers, Environment and Urban Systems found urban seismic stations track human activity within a 4–5 km radius, strongest between 2 and 15 Hz.
+      Every number shown is a measurement, refreshed hourly; between instruments the glow is interpolation, fading with distance. Where the network is unreachable, the map waits, or offers a clearly-labelled simulation. Nothing simulated is ever presented as real. The approach has peer-reviewed footing: a <a href="https://www.sciencedirect.com/science/article/pii/S0198971526000438" target="_blank" rel="noopener" style="color:var(--slate)">2026 study</a> in Computers, Environment and Urban Systems found urban seismic stations track human activity within a 4–5 km radius, strongest between 2 and 15 Hz.
     </div>
   </div>
 </div>
 
+<script src="stations.js"></script>
 <script>
 /* ===== world stage (run-length dot grid, 1.5°) — geography only, carries no data ===== */
 const ROWS=[[4,[[72,3]]],[5,[[72,3]]],[6,[[71,4]]],[7,[[71,4]]],[8,[[71,4]]],[9,[[71,4],[231,2]]],[10,[[71,4],[232,2]]],[11,[[72,4],[217,2],[234,1]]],[12,[[72,5],[216,3],[235,1]]],[13,[[72,6],[236,2]]],[14,[[72,7],[216,3],[237,2]]],[15,[[73,8],[213,7],[236,1]]],[16,[[73,9],[212,8],[235,1]]],[17,[[73,11],[132,6],[197,4],[209,12]]],[18,[[72,14],[132,7],[197,10],[208,13]]],[19,[[72,14],[131,9],[197,25]]],[20,[[72,15],[131,10],[197,25]]],[21,[[73,14],[131,11],[196,26]]],[22,[[73,15],[130,12],[196,26]]],[23,[[73,16],[130,13],[150,1],[196,25]]],[24,[[73,18],[129,14],[150,2],[196,25]]],[25,[[73,19],[129,15],[149,3],[196,24]]],[26,[[73,19],[129,15],[149,4],[199,20]]],[27,[[73,19],[128,17],[149,4],[200,17]]],[28,[[72,21],[128,18],[149,4],[201,16]]],[29,[[71,22],[128,19],[150,4],[203,8],[214,3]]],[30,[[70,24],[128,19],[151,2],[204,1],[206,5],[214,2]]],[31,[[69,25],[129,18],[152,1],[207,4],[214,1]]],[32,[[69,26],[129,18]]],[33,[[68,28],[128,19],[219,1]]],[34,[[68,29],[128,19],[195,1],[216,3]]],[35,[[67,30],[128,19],[191,3],[212,6]]],[36,[[66,31],[128,19],[189,1],[200,1],[211,6]]],[37,[[66,28],[127,20],[188,2],[200,2],[208,8]]],[38,[[66,25],[127,20],[187,2],[193,5],[200,1],[207,6]]],[39,[[67,21],[126,22],[186,2],[193,5],[199,2]]],[40,[[67,19],[126,23],[185,2],[193,6],[200,2]]],[41,[[68,18],[126,24],[185,1],[188,1],[194,5]]],[42,[[68,18],[126,25],[184,1],[187,2],[195,4]]],[43,[[68,17],[114,5],[123,29],[187,1],[197,2]]],[44,[[69,14],[113,40],[173,1],[186,2],[202,2]]],[45,[[65,2],[69,12],[112,41],[173,1],[186,1],[202,1]]],[46,[[63,2],[70,10],[111,43],[171,1],[186,1],[189,2]]],[47,[[63,1],[71,4],[110,40],[153,1],[170,3],[185,2],[188,5]]],[48,[[62,2],[109,39],[149,1],[170,3],[185,8]]],[49,[[59,5],[109,38],[148,5],[169,5],[185,7],[200,1]]],[50,[[57,6],[109,37],[148,7],[169,6],[185,7],[200,1]]],[51,[[53,8],[109,37],[147,9],[169,6],[183,9],[200,1]]],[52,[[51,6],[59,3],[71,3],[109,36],[147,11],[169,7],[182,9]]],[53,[[50,6],[59,3],[67,3],[109,36],[146,13],[168,10],[182,9]]],[54,[[49,6],[63,5],[110,34],[146,13],[166,29]]],[55,[[49,6],[110,34],[145,14],[165,32],[200,1]]],[56,[[48,7],[111,32],[145,10],[157,1],[165,33]]],[57,[[45,1],[47,8],[65,2],[112,31],[144,9],[159,40]]],[58,[[44,1],[46,10],[65,1],[113,29],[143,10],[155,45]]],[59,[[43,14],[60,1],[64,2],[113,39],[153,48]]],[60,[[43,23],[113,88]]],[61,[[43,24],[114,16],[132,2],[143,58],[206,2]]],[62,[[41,27],[114,13],[144,56],[208,2]]],[63,[[39,31],[116,11],[144,56],[204,2],[208,5]]],[64,[[39,31],[115,3],[122,5],[139,15],[155,46],[204,2],[210,4]]],[65,[[38,32],[114,5],[130,1],[134,1],[138,15],[156,44],[204,2],[212,2]]],[66,[[37,34],[114,6],[130,1],[133,3],[137,15],[156,45],[202,4],[213,1]]],[67,[[37,34],[114,8],[129,2],[133,6],[140,4],[147,5],[155,52]]],[68,[[37,25],[65,8],[114,9],[127,2],[132,7],[147,5],[155,53],[214,2]]],[69,[[37,25],[66,9],[118,11],[130,9],[146,6],[156,53],[214,3]]],[70,[[37,40],[118,22],[141,11],[156,55]]],[71,[[37,23],[63,14],[117,96]]],[72,[[37,39],[81,3],[118,95]]],[73,[[36,42],[81,2],[116,1],[121,92]]],[74,[[35,46],[114,1],[116,5],[122,90],[224,1]]],[75,[[34,31],[67,14],[113,3],[117,3],[124,88],[223,4]]],[76,[[33,31],[67,13],[114,2],[117,2],[125,2],[133,79],[224,4]]],[77,[[13,1],[32,29],[68,11],[116,3],[126,1],[128,2],[134,79],[224,5]]],[78,[[14,3],[31,27],[68,11],[116,2],[128,3],[136,78],[223,8]]],[79,[[13,6],[28,30],[75,3],[124,8],[136,96]]],[80,[[10,12],[23,35],[89,5],[123,8],[134,101]]],[81,[[9,49],[87,9],[124,8],[134,104]]],[82,[[0,3],[9,48],[86,11],[106,3],[126,8],[135,105]]],[83,[[0,5],[8,49],[85,14],[104,7],[128,18],[147,93]]],[84,[[0,5],[10,46],[84,16],[129,18],[149,91]]],[85,[[0,3],[12,34],[52,3],[84,18],[129,16],[153,87]]],[86,[[0,1],[14,11],[84,19],[133,9],[161,79]]],[87,[[83,21],[164,54]]],[88,[[82,23],[157,1],[172,34]]],[89,[[81,25],[159,1],[178,17]]],[90,[[80,26],[183,10]]],[91,[[74,32],[189,1]]],[92,[[73,33],[128,6]]],[93,[[77,28]]],[94,[[81,22]]],[95,[[96,3]]]];
 const STEP=1.5, LON0=-180+STEP/2, LAT0=-60+STEP/2;
 
-/* ===== the network: GSN broadband stations [target, place, country, lat, lon, tier] ===== */
-const STATIONS=[
-["IU.KONO.00.BHZ","Kongsberg","Norway",59.65,9.60,1],["II.BFO.00.BHZ","Black Forest","Germany",48.33,8.33,1],
-["II.ESK.00.BHZ","Eskdalemuir","Scotland",55.32,-3.20,1],["II.BORG.00.BHZ","Borgarnes","Iceland",64.75,-21.33,1],
-["IU.PAB.00.BHZ","San Pablo","Spain",39.55,-4.35,1],["IU.ANTO.00.BHZ","Ankara","Türkiye",39.87,32.79,1],
-["IU.GNI.00.BHZ","Garni","Armenia",40.15,44.74,2],["II.OBN.00.BHZ","Obninsk","Russia",55.11,36.57,2],
-["II.KIV.00.BHZ","Kislovodsk","Russia",43.96,42.69,2],["II.AAK.00.BHZ","Ala-Archa","Kyrgyzstan",42.64,74.49,1],
-["II.ABKT.00.BHZ","Alibek","Turkmenistan",37.93,58.12,2],["II.NIL.00.BHZ","Nilore","Pakistan",33.65,73.27,2],
-["II.PALK.00.BHZ","Pallekele","Sri Lanka",7.27,80.70,1],["IU.CHTO.00.BHZ","Chiang Mai","Thailand",18.81,98.94,1],
-["IU.ULN.00.BHZ","Ulaanbaatar","Mongolia",47.87,107.05,1],["IU.INCN.00.BHZ","Incheon","South Korea",37.48,126.62,1],
-["IU.MAJO.00.BHZ","Matsushiro","Japan",36.55,138.20,1],["II.ERM.00.BHZ","Erimo","Japan",42.02,143.16,2],
-["IU.TATO.00.BHZ","Taipei","Taiwan",24.97,121.49,1],["IU.DAV.00.BHZ","Davao","Philippines",7.07,125.58,2],
-["II.KAPI.00.BHZ","Kappang","Indonesia",-5.01,119.75,2],["IU.GUMO.00.BHZ","Guam","Mariana Is.",13.59,144.87,2],
-["IU.PMG.00.BHZ","Port Moresby","Papua New Guinea",-9.41,147.16,2],["IU.CTAO.00.BHZ","Charters Towers","Australia",-20.09,146.25,1],
-["II.WRAB.00.BHZ","Tennant Creek","Australia",-19.93,134.36,2],["IU.MBWA.00.BHZ","Marble Bar","Australia",-21.16,119.73,2],
-["IU.NWAO.00.BHZ","Narrogin","Australia",-32.93,117.24,1],["II.TAU.00.BHZ","Hobart","Australia",-42.91,147.32,1],
-["IU.SNZO.00.BHZ","Wellington","New Zealand",-41.31,174.70,1],["IU.RAR.00.BHZ","Rarotonga","Cook Islands",-21.21,-159.77,2],
-["IU.AFI.00.BHZ","Afiamalu","Samoa",-13.91,-171.78,2],["IU.FUNA.00.BHZ","Funafuti","Tuvalu",-8.53,179.20,2],
-["IU.TARA.00.BHZ","Tarawa","Kiribati",1.36,172.92,2],["IU.XMAS.00.BHZ","Kiritimati","Kiribati",2.04,-157.45,1],
-["IU.KIP.00.BHZ","Kipapa","Hawaiʻi",21.42,-158.01,1],["IU.POHA.00.BHZ","Pohakuloa","Hawaiʻi",19.76,-155.53,2],
-["IU.MIDW.00.BHZ","Midway Atoll","US Pacific",28.22,-177.37,2],["IU.WAKE.00.BHZ","Wake Island","US Pacific",19.28,166.65,2],
-["IU.ADK.00.BHZ","Adak","Alaska",51.88,-176.68,2],["IU.COLA.00.BHZ","College","Alaska",64.87,-147.86,1],
-["II.KDAK.00.BHZ","Kodiak","Alaska",57.78,-152.58,2],["IU.COR.00.BHZ","Corvallis","United States",44.59,-123.30,1],
-["II.PFO.00.BHZ","Piñon Flat","California",33.61,-116.46,1],["IU.TUC.00.BHZ","Tucson","United States",32.31,-110.78,1],
-["IU.ANMO.00.BHZ","Albuquerque","United States",34.95,-106.46,1],["IU.RSSD.00.BHZ","Black Hills","United States",44.12,-104.04,2],
-["IU.HKT.00.BHZ","Hockley","Texas",29.96,-95.84,1],["IU.WVT.00.BHZ","Waverly","Tennessee",36.13,-87.83,2],
-["IU.WCI.00.BHZ","Wyandotte Cave","Indiana",38.23,-86.29,2],["IU.SSPA.00.BHZ","Standing Stone","Pennsylvania",40.64,-77.89,2],
-["IU.HRV.00.BHZ","Harvard","United States",42.51,-71.56,1],["II.FFC.00.BHZ","Flin Flon","Canada",54.72,-101.98,2],
-["IU.SFJD.00.BHZ","Kangerlussuaq","Greenland",66.99,-50.62,1],["II.ALE.00.BHZ","Alert","Canada",82.50,-62.35,2],
-["IU.BBSR.00.BHZ","Bermuda","Atlantic",32.37,-64.70,2],["IU.SJG.00.BHZ","San Juan","Puerto Rico",18.11,-66.15,1],
-["IU.TEIG.00.BHZ","Tepich","Mexico",20.23,-88.28,2],["IU.SLBS.00.BHZ","Sierra la Laguna","Mexico",23.69,-109.94,2],
-["II.JTS.00.BHZ","Las Juntas","Costa Rica",10.29,-84.95,2],["IU.SDV.00.BHZ","Santo Domingo","Venezuela",8.88,-70.63,2],
-["IU.OTAV.00.BHZ","Otavalo","Ecuador",0.24,-78.45,1],["II.NNA.00.BHZ","Ñaña","Peru",-11.99,-76.84,1],
-["IU.LVC.00.BHZ","Limón Verde","Chile",-22.61,-68.91,2],["IU.TRQA.00.BHZ","Tornquist","Argentina",-38.06,-61.98,1],
-["II.EFI.00.BHZ","East Falkland","Falkland Is.",-51.68,-58.06,1],["IU.RCBR.00.BHZ","Riachuelo","Brazil",-5.82,-35.90,2],
-["IU.PTGA.00.BHZ","Pitinga","Brazil",-0.73,-59.97,2],["II.ASCN.00.BHZ","Ascension","Atlantic",-7.93,-14.36,2],
-["II.SACV.00.BHZ","Santiago","Cabo Verde",14.97,-23.61,2],["II.CMLA.00.BHZ","Chã de Macela","Azores",37.76,-25.52,2],
-["IU.KOWA.00.BHZ","Kowa","Mali",14.50,-4.01,2],["II.MBAR.00.BHZ","Mbarara","Uganda",-0.60,30.74,2],
-["IU.KMBO.00.BHZ","Kilima Mbogo","Kenya",-1.13,37.25,1],["IU.FURI.00.BHZ","Furi","Ethiopia",8.90,38.68,2],
-["II.MSEY.00.BHZ","Mahé","Seychelles",-4.67,55.48,1],["II.ABPO.00.BHZ","Ambohimpanompo","Madagascar",-19.02,47.23,2],
-["IU.TSUM.00.BHZ","Tsumeb","Namibia",-19.20,17.58,1],["II.SUR.00.BHZ","Sutherland","South Africa",-32.38,20.81,1],
-["IU.LSZ.00.BHZ","Lusaka","Zambia",-15.28,28.19,2],["II.DGAR.00.BHZ","Diego Garcia","Indian Ocean",-7.41,72.45,2],
-["II.COCO.00.BHZ","Cocos Islands","Indian Ocean",-12.19,96.83,2],["IU.MAKZ.00.BHZ","Makanchi","Kazakhstan",46.81,81.98,2],
-["II.BRVK.00.BHZ","Borovoye","Kazakhstan",53.06,70.28,2],["II.ARU.00.BHZ","Arti","Russia",56.43,58.56,2],
-["II.TLY.00.BHZ","Talaya","Russia",51.68,103.64,2],["IU.YAK.00.BHZ","Yakutsk","Russia",62.03,129.68,2],
-["IU.TIXI.00.BHZ","Tiksi","Russia",71.65,128.87,2],["IU.BILL.00.BHZ","Bilibino","Russia",68.07,166.45,2],
-["IU.PET.00.BHZ","Petropavlovsk","Russia",53.02,158.65,2],["IU.MA2.00.BHZ","Magadan","Russia",59.58,150.77,2],
-["IU.YSS.00.BHZ","Yuzhno-Sakhalinsk","Russia",46.96,142.76,2],["IU.KEV.00.BHZ","Kevo","Finland",69.76,27.00,1],
-["IU.KBS.00.BHZ","Ny-Ålesund","Svalbard",78.92,11.94,1],["II.UOSS.00.BHZ","Sharjah","UAE",24.95,56.20,1],
-["II.RPN.00.BHZ","Rapa Nui","Chile",-27.13,-109.33,1],["IU.PTCN.00.BHZ","Pitcairn","Pacific",-25.07,-130.10,2],
-["II.HOPE.00.BHZ","Hope Point","South Georgia",-54.28,-36.49,2],["II.TRIS.00.BHZ","Tristan da Cunha","Atlantic",-37.07,-12.32,2],
-];
-
-/* ===== ocean outposts: they report and light the map, but surf — not people — sets their hum,
-   so they don't compete for the headline (stillest or loudest) ===== */
-const OUTPOST=new Set(['IU.GUMO','IU.RAR','IU.AFI','IU.FUNA','IU.TARA','IU.XMAS','IU.MIDW','IU.WAKE',
-  'IU.ADK','IU.BBSR','II.ASCN','II.SACV','II.CMLA','II.MSEY','II.DGAR','II.COCO','II.RPN','IU.PTCN',
-  'II.HOPE','II.TRIS']);
+/* station catalog + outpost set come from stations.js (shared with the worker) */
 const isOutpost=STATIONS.map(s=>OUTPOST.has(s[0].split('.').slice(0,2).join('.')));
 
 /* ===== state ===== */
@@ -394,21 +338,28 @@ function psdBandMeans(windows){
   return out;
 }
 function groundPercentile(means){
-  /* Deseasonalized anomaly percentile:
-     1) compute each hour-of-day's mean level across the window (the station's daily rhythm)
-     2) each sample's anomaly = its level minus its hour's mean (removes day/night cycle)
-     3) rank the latest sample's anomaly against ALL other anomalies.
-     With ~90 windows in 48h this yields granular percentiles instead of 0/100 extremes,
-     and answers the right question: is the ground stiller than usual FOR THIS HOUR? */
+  /* Deseasonalized anomaly percentile — SAME MATH as stillness() in
+     fetch-ground.mjs, minus the archive: the norm is the mean at the same hour
+     of day, weekdays and weekends kept apart when a bucket has >=3 samples;
+     the latest sample's anomaly is ranked against all the others.
+     This dial fallback only sees ~72h, so day-type buckets are often thin and
+     it degrades to plain hour-of-day; the served path carries the real baseline. */
   if(means.length<12)return null;
   means.sort((a,b)=>a.end-b.end);
-  const hsum=new Array(24).fill(0),hn=new Array(24).fill(0);
+  const key=m=>{const d=new Date(m.end);return d.getUTCHours()+((d.getUTCDay()===0||d.getUTCDay()===6)?24:0)};
+  const bsum={},bn={},hsum=new Array(24).fill(0),hn=new Array(24).fill(0);
   for(const m of means){
-    const h=new Date(m.end).getUTCHours();
+    const k=key(m),h=new Date(m.end).getUTCHours();
+    bsum[k]=(bsum[k]||0)+m.db;bn[k]=(bn[k]||0)+1;
     hsum[h]+=m.db;hn[h]++;
   }
-  const hmean=h=>hn[h]?hsum[h]/hn[h]:null;
-  const anom=m=>{const mu=hmean(new Date(m.end).getUTCHours());return mu===null?null:m.db-mu};
+  const norm=m=>{
+    const k=key(m);
+    if((bn[k]||0)>=3)return bsum[k]/bn[k];
+    const h=new Date(m.end).getUTCHours();
+    return hn[h]?hsum[h]/hn[h]:null;
+  };
+  const anom=m=>{const mu=norm(m);return mu===null?null:m.db-mu};
   const cur=means[means.length-1],ca=anom(cur);
   if(ca===null)return null;
   const others=means.slice(0,-1).map(anom).filter(a=>a!==null);
@@ -479,6 +430,7 @@ function renderStatus(){
   const parts=[];
   if(signals.ok)parts.push(`<b>${signals.ok}</b> of ${STATIONS.length} stations`);
   if(servedAt)parts.push(`<b>${String(servedAt.getUTCHours()).padStart(2,'0')}:${String(servedAt.getUTCMinutes()).padStart(2,'0')} UTC</b>`);
+  else if(signals.ok)parts.push('dialed direct · 72h baseline'); /* fallback path: disclose the shorter window */
   if(signals.quakes)parts.push(`<b>${signals.quakes}</b> tremor${signals.quakes>1?'s':''} this hour`);
   if(loudest)parts.push(`loudest: <b>${loudest}</b>`);
   statusLine.innerHTML=parts.length
