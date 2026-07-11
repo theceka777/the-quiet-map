@@ -114,8 +114,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #waiting .w-sub{font-size:10px;letter-spacing:.1em;color:var(--slate-dim);max-width:460px;line-height:1.9}
 #waiting .btn{pointer-events:auto;margin-top:6px}
 #probe{position:absolute;pointer-events:none;z-index:8;background:rgba(5,7,13,.9);border:1px solid var(--hair);
-  padding:10px 14px;max-width:270px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s}
-#probe.on{opacity:1}
+  padding:10px 14px;max-width:270px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s;cursor:pointer}
+#probe.on{opacity:1;pointer-events:auto}
 #probe .p-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;color:var(--moon)}
 #probe .p-line{font-size:9.5px;letter-spacing:.1em;color:var(--slate);margin-top:4px;text-transform:uppercase}
 #probe .p-score{font-size:9.5px;letter-spacing:.1em;margin-top:3px;color:var(--moon-soft)}
@@ -165,6 +165,8 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
 .keep-card h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:26px;color:var(--moon)}
 .keep-card img{width:100%;height:auto;border:1px solid var(--hair);margin:14px 0;display:block}
 .keep-card .btn{display:inline-block;text-decoration:none}
+.share-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.share-row .btn{flex:1 1 auto}
 @media (max-width:640px){
   /* header: brand centered on top, how-it-works tucked in the corner */
   .brand{top:10px}
@@ -252,16 +254,22 @@ canvas#spark{position:absolute;inset:0;width:100%;height:100%}
       <canvas id="spark"></canvas>
     </div>
     <button class="btn" id="howBtn">How it works</button>
-    <button class="btn" id="saveBtn">Keep this moment</button>
+    <button class="btn" id="saveBtn">Share</button>
   </div>
 </footer>
 
-<div id="keep" role="dialog" aria-modal="true" aria-label="Keep this moment">
+<div id="keep" role="dialog" aria-modal="true" aria-label="Share this moment">
   <div class="keep-card">
     <button class="how-close" id="keepClose" aria-label="Close">✕</button>
-    <h2>Keep this moment</h2>
+    <h2>Share this moment</h2>
     <img id="keepImg" alt="Share card of the current quietest place">
-    <a class="btn" id="keepDl" href="#">Download PNG</a>
+    <div class="share-row">
+      <button class="btn" id="keepShare" style="display:none">Share…</button>
+      <a class="btn" id="keepX" target="_blank" rel="noopener">X</a>
+      <a class="btn" id="keepWa" target="_blank" rel="noopener">WhatsApp</a>
+      <button class="btn" id="keepCopy">Copy link</button>
+      <a class="btn" id="keepDl" href="#">Download PNG</a>
+    </div>
   </div>
 </div>
 
@@ -667,6 +675,11 @@ function drawSpark(){
 /* ===== probe ===== */
 const probe=document.getElementById('probe');
 let probeTimer=null;
+/* tapping the popup itself closes it (instead of hitting the map beneath) */
+probe.addEventListener('pointerdown',e=>{
+  e.stopPropagation();e.preventDefault();
+  probe.classList.remove('on');clearTimeout(probeTimer);
+});
 cv.addEventListener('pointerdown',e=>{
   const rect=cv.getBoundingClientRect();
   const mx=e.clientX-rect.left,my=e.clientY-rect.top;
@@ -885,7 +898,6 @@ document.getElementById('saveBtn').addEventListener('click',async()=>{
   if(quietIdx<0)return;
   await document.fonts.ready;
   const st=STATIONS[quietIdx],g=ground[quietIdx];
-  const still=Math.round((1-g.p)*100);
   const cvs=document.createElement('canvas');cvs.width=1080;cvs.height=1350;
   const x=cvs.getContext('2d');
   x.fillStyle='#05070D';x.fillRect(0,0,1080,1350);
@@ -935,9 +947,36 @@ document.getElementById('saveBtn').addEventListener('click',async()=>{
   x.fillText(simulated?'SIMULATED SIGNAL · DESIGN PREVIEW ONLY':'THE QUIET MAP · measured by the earth itself',540,1316);
   const url=cvs.toDataURL('image/png');
   document.getElementById('keepImg').src=url;
+  const fname=`the-quiet-map-${st[1].toLowerCase().replace(/[^a-z]/g,'')}-${Date.now()}.png`;
   const dl=document.getElementById('keepDl');
   dl.href=url;
-  dl.download=`the-quiet-map-${st[1].toLowerCase().replace(/[^a-z]/g,'')}-${Date.now()}.png`;
+  dl.download=fname;
+  /* the regular share options */
+  const pageUrl='https://theceka777.github.io/the-quiet-map/';
+  const shareText=`The quietest place on earth right now: ${st[1]}, ${st[2]} — ${phrase(g.p)}.`;
+  const blob=await new Promise(r=>cvs.toBlob(r,'image/png'));
+  const sBtn=document.getElementById('keepShare');
+  if(navigator.share){
+    sBtn.style.display='inline-block';
+    sBtn.onclick=async()=>{
+      try{
+        const file=new File([blob],fname,{type:'image/png'});
+        if(navigator.canShare&&navigator.canShare({files:[file]}))
+          await navigator.share({files:[file],title:'The Quiet Map',text:shareText,url:pageUrl});
+        else
+          await navigator.share({title:'The Quiet Map',text:shareText,url:pageUrl});
+      }catch(e){/* user dismissed the sheet */}
+    };
+  }
+  document.getElementById('keepX').href=
+    `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(pageUrl)}`;
+  document.getElementById('keepWa').href=
+    `https://wa.me/?text=${encodeURIComponent(shareText+' '+pageUrl)}`;
+  const cp=document.getElementById('keepCopy');
+  cp.onclick=async()=>{
+    try{await navigator.clipboard.writeText(shareText+' '+pageUrl);
+      cp.textContent='Copied';setTimeout(()=>cp.textContent='Copy link',1500);}catch(e){}
+  };
   document.getElementById('keep').classList.add('open');
 });
 </script>
