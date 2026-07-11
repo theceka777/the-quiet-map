@@ -28,7 +28,7 @@ jobs:
         run: node fetch-ground.mjs
       - name: Render share card
         run: |
-          npm install --no-save canvas >/dev/null 2>&1 || true
+          npm install --no-save canvas@3.2.3 >/dev/null 2>&1 || true
           mkdir -p fonts
           curl -fsSL -o fonts/CormorantGaramond-Italic.ttf "https://github.com/google/fonts/raw/main/ofl/cormorantgaramond/CormorantGaramond-Italic%5Bwght%5D.ttf" || true
           curl -fsSL -o fonts/IBMPlexMono-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/ibmplexmono/IBMPlexMono-Regular.ttf" || true
